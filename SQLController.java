@@ -92,7 +92,8 @@ public class SQLController {
 
 	//Controls the execution of a select query.
 	//Functionality: "2. Select a record."
-	public void selectOp(String query) {
+	public ArrayList<String> selectOp(String query) {
+		ArrayList<String> result = new ArrayList<String>();
 		try {
 			ResultSet rs = st.executeQuery(query);
 			ResultSetMetaData rsmd = rs.getMetaData();
@@ -114,6 +115,7 @@ public class SQLController {
 			e.printStackTrace();
 		}
 		System.out.println();
+		return result;
 	}
 
 	//Controls the execution of an insert query.
