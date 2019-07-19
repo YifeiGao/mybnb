@@ -5,6 +5,9 @@ import java.util.Scanner;
 
 public class CommandLine {
 	private static String user;
+	private static final String[] listing_column_name = {"list type", "list coordinate", "list address", "hostSIN"};
+	private static final String[] listing_column_type = {"VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "INT NOT NULL"};
+	private static final String listing_primary_key = "list coordinate, list address";
 	private static final String[] user_column_name = {"name", "password", "address", "birth", "occup", "SIN", "username", "type"};
 	private static final String[] user_column_type = {"VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "INT NOT NULL", "VARCHAR(30) NOT NULL", "INT NOT NULL", "VARCHAR(30) NOT NULL","VARCHAR(30) NOT NULL"};
 	private static final String user_primary_key = "SIN";
@@ -107,18 +110,53 @@ public class CommandLine {
 		}
 
 	}
-	
+
 	/**
 	 * operations of the host
 	 */
 	private void hostOp(){
 		this.hostMenu();
+		String input;
+		int choice;
+		input = sc.nextLine();
+		choice = Integer.parseInt(input);
+		switch(choice){
+		case 0:
+			//should log out 
+			break;
+		case 1:
+			//get the host's lists' info
+			break;
+		case 2:
+			//get a list's rental history
+			break;
+		case 3:
+			//Delete a future booking of a list
+			break;
+		case 4:
+			//write the comments
+			break;
+		case 5:
+			// update the price of a listing
+			break;
+		case 6:
+			// Add a listing
+			break;
+		}
 	}
-	
+	/**
+	 * handle the host's case 2: print out a list's rental history
+	 */
+	private void getHostL(){
+		ArrayList <String> result = new ArrayList<String>();
+		
+
+	}
+
 	/**
 	 * operations of the renter, the renter are provided with few options with corresponding numbers
 	 * 
-	 * String input: it is the option that the renter chosed
+	 * String input: it is the option that the renter chose
 	 */
 	private void renterOp(){
 		this.renterMenu();
@@ -145,6 +183,19 @@ public class CommandLine {
 		}
 
 	}
+
+	private void insertBooking(){
+
+	}
+
+	private void printHistory(){
+
+	}
+
+	private void deletBooking(){
+		System.out.println("Please enter your booking ID");
+
+	}
 	/**
 	 * it is the operations that the renter can do 
 	 */
@@ -164,13 +215,14 @@ public class CommandLine {
 
 	private void hostMenu(){
 		System.out.println("=========OPERATIONS=========");
-		System.out.println("0. Exit.");
+		System.out.println("0. Log out.");
 		System.out.println("1. Get the all your own lists' information.");
 		System.out.println("2. Check a list's booking history.");
 		System.out.println("3. Delete a future booking of a list.");
 		System.out.println("4. Write a comment and rate a renter.");
 		System.out.println("5. Update the price of a listing");
-		System.out.print("Choose one of the previous options [0-5]: ");
+		System.out.println("6. Add a list");
+		System.out.print("Choose one of the previous options [0-6]: ");
 	}
 
 	/**
