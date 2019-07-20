@@ -130,5 +130,23 @@ public class SQLController {
 		}
 		return rows;
 	}
+	
+	public void deleteOp(String query){
+		try{
+			st.executeQuery(query);
+		} catch(SQLException e){
+			System.err.println("Exception triggered during Delete execution!");
+			e.printStackTrace();
+		}
+	}
+	
+	public void updateOp(String query){
+		try{
+			st.executeQuery(query);
+		} catch(SQLException e){
+			System.err.println("Exception triggered during update operation execution!");
+			e.printStackTrace();
+		}
+	}
 
 }
