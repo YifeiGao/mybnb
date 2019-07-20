@@ -9,8 +9,9 @@ import java.util.TimeZone;
 
 public class CommandLine {
 	private static String user;
-	private static final String[] listing_column_name = {"list type", "list coordinate", "Country", "Province", "City", "house number and Street","host user name"};
-	private static final String[] listing_column_type = {"VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL","VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL"};
+	private static String[] listing_type = {"House", "Bed and breakfast", "Bungalow", "Chalet", "Guest suite", "Hostel", "Loft", "Townhouse", "Apartment", "Boutique hotle", "Cabin", "Cottage", "Guesthouse", "Hotel", "Resort", "Villa"};
+	private static final String[] listing_column_name = {"list coordinate", "Country", "Province", "City", "house number and Street","host user name","list type"};
+	private static final String[] listing_column_type = { "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL","VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL","VARCHAR(30) NOT NULL"};
 	private static final String listing_primary_key = "list coordinate, list address";
 	private static final String[] amenites_column_name = {"kitchen","heating","washer", "wifi", "indoor fireplace", "iron", "Laptop-friendly workspace", "crib", "self check_in", "carbon monoxide detector", "shampoo", "air conditioning", "dryer", "breakfast", "hangers", "hair dryer", "TV", "hight chair", "smoke detector", "private bathroom", "Country", "Province","City", "house number and Street"};
 	private static final String[] amenites_column_type = {"TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL"};
@@ -18,8 +19,8 @@ public class CommandLine {
 	private static final String[] user_column_name = {"name", "password", "list address", "birth", "occup", "SIN", "user name", "canclellationc", "type",};
 	private static final String[] user_column_type = {"VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "INT NOT NULL", "VARCHAR(30) NOT NULL", "INT NOT NULL", "VARCHAR(30) NOT NULL","INT DEFAULT 0", "VARCHAR(30) NOT NULL"};
 	private static final String user_primary_key = "user name";
-	private static final String[] renter_column_name = {"user name", "credit card number"};
-	private static final String[] renter_column_type = {"VARCHAR(30) NOT NULL", "INT NOT NULL"};
+	private static final String[] renter_column_name = {"credit card number", "user name"};
+	private static final String[] renter_column_type = {"INT NOT NULL", "VARCHAR(30) NOT NULL"};
 	private static final String renter_primary_key = "credit card number";
 	private static final String [] rcomments_column_name = {"list coordinate", "list address"," renter user name", "comment date", "comment", "host user name", "list scale", "host scale"};
 	private static final String [] rcomments_column_type = {"VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "DATE NOT NULL", "TEXT NOT NULL", "VARCHAR(30) NOT NULL", "INT NOT NULL", "INT NOT NULL"};
@@ -167,7 +168,9 @@ public class CommandLine {
 
 	private void addListing(){
 		int choice;
+		String[] column_values = new String[16];
 		boolean check = false;
+		column_values = this.getInfo(listing_type, listing_type.length - 1);
 		do{
 			this.listTypeMenu();
 			choice = Integer.parseInt(sc.nextLine());
@@ -176,26 +179,16 @@ public class CommandLine {
 				System.out.println("Please choose a type that provided");
 			}
 		}while(!check);
+		column_values[listing_type.length - 1] = listing_type[choice];
+		this.insertOperator("listing", listing_column_name, column_values);
+		
 	}
 
 	private void listTypeMenu(){
 		System.out.println("=========LISTING TYPES=========");
-		System.out.println("0. House.");
-		System.out.println("1. Bed adn breakfast.");
-		System.out.println("2. Bungalow.");
-		System.out.println("3. Chalet.");
-		System.out.println("4. Guest suite.");
-		System.out.println("5. Hostel");
-		System.out.println("6. Loft.");
-		System.out.println("7. Townhouse.");
-		System.out.println("8. Apartment.");
-		System.out.println("9. Boutique hotel");
-		System.out.println("10.Cabin.");
-		System.out.println("11.Cottage");
-		System.out.println("12. Guesthouse");
-		System.out.println("13, Hotel");
-		System.out.println("14. Resort");
-		System.out.println("15. Villa");
+		for(int i = 0; i < 16; i++){
+			System.out.println(i + listing_type[i]);
+		}
 		System.out.print("Please select the type of your listing [0-15]: ");
 	}
 
@@ -387,7 +380,7 @@ public class CommandLine {
 			type = sc.nextLine();
 			check_type = (type.equals("host") | type.equals("renter"));
 		}
-		column_values = this.getInfo(user_column_name, 0, user_column_name.length - 1);
+		column_values = this.getInfo(user_column_name, user_column_name.length - 1);
 		column_values[column_values.length-1] = type;
 		c.insertOperator("users", user_column_name, column_values);
 		user = column_values[6];
@@ -413,21 +406,22 @@ public class CommandLine {
 	 * add the renter info into the table named renter
 	 */
 	private void addRenter(){
-		String [] column_value = new String[2];
-		column_value = this.getInfo(renter_column_name, 1, renter_column_name.length);
+		String [] column_value = new String[renter_column_name.length];
+		column_value = this.getInfo(renter_column_name, renter_column_name.length);
+		column_value[renter_column_name.length - 1] = user;
 		this.insertOperator("renter", renter_column_name, column_value);
 	}
 
 	/**
 	 * get the value that typed form command line
 	 * @param column: a string array which stores the column names
-	 * @param c: the number of the columns that you want to insert value
+	 * @param c: the number of column that need the user's input value
 	 * @return a string array that stores the value of columns
 	 */
-	private String[] getInfo(String[] column, int s, int e){
-		String [] values = new String[e - s + 1];
-		for (int i = s; i <= e; i ++){
-			System.out.println("Please type your " +  column[i] + " below");
+	private String[] getInfo(String[] column,int c){
+		String [] values = new String[c];
+		for (int i = 0; i < c; i ++){
+			System.out.println("Please type the " +  column[i] + " below");
 			values[i] = sc.nextLine();
 		}
 		return values;
