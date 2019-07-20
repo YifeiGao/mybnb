@@ -1,27 +1,34 @@
 package project;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Scanner;
+import java.util.TimeZone;
 
 public class CommandLine {
 	private static String user;
-	private static final String[] listing_column_name = {"list type", "list coordinate", "list address", "hostSIN"};
-	private static final String[] listing_column_type = {"VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "INT NOT NULL"};
+	private static final String[] listing_column_name = {"list type", "list coordinate", "Country", "Province", "City", "house number and Street","host user name"};
+	private static final String[] listing_column_type = {"VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL","VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL"};
 	private static final String listing_primary_key = "list coordinate, list address";
-	private static final String[] user_column_name = {"name", "password", "address", "birth", "occup", "SIN", "username", "type"};
-	private static final String[] user_column_type = {"VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "INT NOT NULL", "VARCHAR(30) NOT NULL", "INT NOT NULL", "VARCHAR(30) NOT NULL","VARCHAR(30) NOT NULL"};
-	private static final String user_primary_key = "SIN";
-	private static final String[] renter_column_name = {"SIN", "credit card number"};
-	private static final String[] renter_column_type = {"INT NOT NULL", "INT NOT NULL"};
+	private static final String[] amenites_column_name = {"kitchen","heating","washer", "wifi", "indoor fireplace", "iron", "Laptop-friendly workspace", "crib", "self check_in", "carbon monoxide detector", "shampoo", "air conditioning", "dryer", "breakfast", "hangers", "hair dryer", "TV", "hight chair", "smoke detector", "private bathroom", "Country", "Province","City", "house number and Street"};
+	private static final String[] amenites_column_type = {"TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL"};
+	private static final String amenites_primary_key = "Country, Province, City, house number and Street";
+	private static final String[] user_column_name = {"name", "password", "list address", "birth", "occup", "SIN", "user name", "canclellationc", "type",};
+	private static final String[] user_column_type = {"VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "INT NOT NULL", "VARCHAR(30) NOT NULL", "INT NOT NULL", "VARCHAR(30) NOT NULL","INT DEFAULT 0", "VARCHAR(30) NOT NULL"};
+	private static final String user_primary_key = "user name";
+	private static final String[] renter_column_name = {"user name", "credit card number"};
+	private static final String[] renter_column_type = {"VARCHAR(30) NOT NULL", "INT NOT NULL"};
 	private static final String renter_primary_key = "credit card number";
-	private static final String [] rcomments_column_name = {"list coordinate", "list address"," renterSIN", "DATE", "comment", "hostSIN", "list_ cale", "host scale"};
-	private static final String [] rcomments_column_type = {"VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "INT NOT NULL", "date NOT NULL", "text NOT NULL", "INT NOT NULL", "INT NOT NULL", "INT NOT NULL"};
-	private static final String rcomments_primary_key = "list coordinate, list address, userSIN";
-	private static final String[] hcomments_column_name = {"hostSIN", "renterSIN", "date", "list address", "list coordinate"};
-	private static final String[] hcomments_column_type = {"INT NOT NULL", "INT NOT NULL", "DATE", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL"};
+	private static final String [] rcomments_column_name = {"list coordinate", "list address"," renter user name", "comment date", "comment", "host user name", "list scale", "host scale"};
+	private static final String [] rcomments_column_type = {"VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "DATE NOT NULL", "TEXT NOT NULL", "VARCHAR(30) NOT NULL", "INT NOT NULL", "INT NOT NULL"};
+	private static final String rcomments_primary_key = "list coordinate, list address, renter user name, comment date";
+	private static final String[] hcomments_column_name = {"list coordinate", "list address"," renter user name", "comment date", "comment", "host user name", "renter scale"};
+	private static final String[] hcomments_column_type = {"VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "DATE NOT NULL", "TEXT NOT NULL", "VARCHAR(30) NOT NULL", "INT NOT NULL"};
 	private static final String hcomments_primary_key = null;
-	private static final String [] booking_column_name = {"booking ID", "hostSIN", "renterSIN", "list coordibate", "list address"};
-	private static final String [] booking_column_type = {"INT AUTO_INCREMENT", "INT NOT NULL", "INT NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL"};
+	private static final String [] booking_column_name = {"booking ID", "host user name", "renter user name", "list coordibate", "list address", "start date", "end date"};
+	private static final String [] booking_column_type = {"INT AUTO_INCREMENT", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "DATE NOT NULL", "DATE NOT NULL"};
 	private static final String booking_primary_key = "booking ID";
 
 	// 'sqlMngr' is the object which interacts directly with MySQL
@@ -86,18 +93,20 @@ public class CommandLine {
 		String pass;
 		String sql;
 		ArrayList <String> result = new ArrayList <String>();
-		boolean check = false;
+		boolean check;
 		//check if the password that the user typed is matched according to the database
-		while (!check){
+		do{
 			System.out.println("Please type your username below");
 			user = sc.nextLine();
 			System.out.println("Please type your password below");
 			pass = sc.nextLine();
-			sql = "SELECT password FROM users WHERE username = user_name";
+			sql = "SELECT password FROM users WHERE user name = '"+user+"'";
 			result = sqlMngr.selectOp(sql);	
 			check = (result.get(0).equals(pass));
-			System.out.println("incorrect password");
-		}
+			if(!check){
+				System.out.println("incorrect password");
+			}
+		}while (!check);
 		//get the user's type once the user logged in
 		sql = "SELECT type FROM users WHERE user = username";
 		result = sqlMngr.selectOp(sql);
@@ -132,14 +141,17 @@ public class CommandLine {
 			break;
 		case 3:
 			//Delete a future booking of a list
+			this.deletBooking();
 			break;
 		case 4:
+			//update availability
+		case 5:
 			//write the comments
 			break;
-		case 5:
+		case 6:
 			// update the price of a listing
 			break;
-		case 6:
+		case 7:
 			// Add a listing
 			break;
 		}
@@ -149,14 +161,55 @@ public class CommandLine {
 	 */
 	private void getHostL(){
 		ArrayList <String> result = new ArrayList<String>();
-		
 
+
+	}
+
+	private void addListing(){
+		int choice;
+		boolean check = false;
+		do{
+			this.listTypeMenu();
+			choice = Integer.parseInt(sc.nextLine());
+			check = this.checkInRange(choice, 0, 15);
+			if(!check){
+				System.out.println("Please choose a type that provided");
+			}
+		}while(!check);
+	}
+
+	private void listTypeMenu(){
+		System.out.println("=========LISTING TYPES=========");
+		System.out.println("0. House.");
+		System.out.println("1. Bed adn breakfast.");
+		System.out.println("2. Bungalow.");
+		System.out.println("3. Chalet.");
+		System.out.println("4. Guest suite.");
+		System.out.println("5. Hostel");
+		System.out.println("6. Loft.");
+		System.out.println("7. Townhouse.");
+		System.out.println("8. Apartment.");
+		System.out.println("9. Boutique hotel");
+		System.out.println("10.Cabin.");
+		System.out.println("11.Cottage");
+		System.out.println("12. Guesthouse");
+		System.out.println("13, Hotel");
+		System.out.println("14. Resort");
+		System.out.println("15. Villa");
+		System.out.print("Please select the type of your listing [0-15]: ");
+	}
+
+	private boolean checkInRange(int input, int min, int max){
+		boolean check;
+		check = input >= min || input <= max;
+		return check;
 	}
 
 	/**
 	 * operations of the renter, the renter are provided with few options with corresponding numbers
 	 * 
 	 * String input: it is the option that the renter chose
+	 * @throws ParseException 
 	 */
 	private void renterOp(){
 		this.renterMenu();
@@ -174,14 +227,68 @@ public class CommandLine {
 		case 2:
 			//print the rental history of the user
 			break;
+			//delete the future booking
 		case 3:
-			//delete the user's future booking , the user should provide the booking id
+			this.deletBooking();
 			break;
 		case 4:
 			//write the comments
 			break;
 		}
 
+	}
+	private ArrayList<String> checkBookingId(){
+		String get_id_sql;
+		String check_type_sql;
+		String booking_id;
+		boolean check_id;
+		String type;
+		String type_result;
+		ArrayList<String> result = new ArrayList<String>();
+		do{
+			System.out.println("Please provide the booking ID of the future booking that you want to cancle" );
+			booking_id = sc.nextLine();
+			check_type_sql = "SELECT type FROM users WHERE user name = '"+user+"'"; 
+			type_result = sqlMngr.selectOp(check_type_sql).get(0);
+			if(type_result.equals("host")){
+				get_id_sql = "SELECT * FROM booking WHERE host user name = '"+user+"' and booking id  = '"+booking_id+"'";
+			}
+			else{
+				get_id_sql = "SELECT * FROM booking WHERE renter user name = '"+user+"' and booking id  = '"+booking_id+"'";
+			}
+			result = sqlMngr.selectOp(get_id_sql);
+			//check_id is true if the result list is empty which means the booking Id that the user provide is incorrect
+			check_id = result.isEmpty();
+			if (check_id){
+				System.out.println("The booking Id is not correct");
+			}
+		}while (check_id);
+		return result;
+	}
+
+	private boolean checkFuture(ArrayList<String> result_list){
+		boolean check_date = false;
+		//get the current date which named curr, the time zone is GMT
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'");
+		sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+		Date curr = new Date();
+		sdf.format(curr);
+		String booking_date;
+		try{
+			//check if it is a future booking
+			//get the booking date according to the booking id that provided by user
+			//the booking start date stores in the index 5 of the result list, the result list is returned by the select operation
+			booking_date = result_list.get(5);
+			Date start_date = sdf.parse(booking_date);
+			check_date = start_date.compareTo(curr) > 0;
+			if (!check_date){
+				System.out.println("According to our record, the booking is not a future booking");
+			}
+		}catch(ParseException e){
+			System.err.println("Exception triggered during date parse execution!");
+			e.printStackTrace();
+		}
+		return check_date;
 	}
 
 	private void insertBooking(){
@@ -193,8 +300,28 @@ public class CommandLine {
 	}
 
 	private void deletBooking(){
-		System.out.println("Please enter your booking ID");
-
+		ArrayList <String> result = new ArrayList<String>();
+		boolean valid = false;
+		String booking_id;
+		String update_sql;
+		String get_cancel_sql;
+		int cancellation;
+		do{
+			result = this.checkBookingId();
+			valid = this.checkFuture(result);
+		}while(!valid);
+		booking_id = result.get(0);
+		this.deleteOperation("booking", "booking ID = '"+booking_id+"'");
+		//update the user's cancellation time
+		get_cancel_sql = "SELECT cancellation FROM users WHERE user name = '"+user+"'";
+		cancellation = Integer.parseInt(sqlMngr.selectOp(get_cancel_sql).get(0));
+		cancellation += 1;
+		update_sql = "UPDATE users set cancellation = '"+cancellation+"' WHERE user name = '"+user+"'";
+		sqlMngr.updateOp(update_sql);
+		/*
+		 * TO DO:
+		 * update availability of the list
+		 */
 	}
 	/**
 	 * it is the operations that the renter can do 
@@ -219,9 +346,10 @@ public class CommandLine {
 		System.out.println("1. Get the all your own lists' information.");
 		System.out.println("2. Check a list's booking history.");
 		System.out.println("3. Delete a future booking of a list.");
-		System.out.println("4. Write a comment and rate a renter.");
-		System.out.println("5. Update the price of a listing");
-		System.out.println("6. Add a list");
+		System.out.println("4. Update the availability of the list");
+		System.out.println("5. Write a comment and rate a renter.");
+		System.out.println("6. Update the price of a listing");
+		System.out.println("7. Add a list");
 		System.out.print("Choose one of the previous options [0-6]: ");
 	}
 
@@ -259,17 +387,25 @@ public class CommandLine {
 			type = sc.nextLine();
 			check_type = (type.equals("host") | type.equals("renter"));
 		}
-		column_values = this.getInfo(user_column_name, user_column_name.length - 1);
+		column_values = this.getInfo(user_column_name, 0, user_column_name.length - 1);
 		column_values[column_values.length-1] = type;
-
+		c.insertOperator("users", user_column_name, column_values);
+		user = column_values[6];
 		if(type.equals("host")){
-			//do the operation of the host
+			/*TO DO:
+			 * do the operation of the host
+			 */
+			this.hostOp();
 		}
 		else if(type.equals("renter")){
 			// insert the renter's info into the table renter by calling function inser_renter
 			this.addRenter();
+			/*
+			 * TO DO: do the operation of the renter
+			 */
+			this.renterOp();
 		}
-		c.insertOperator("users", user_column_name, column_values);
+
 
 	}
 
@@ -278,7 +414,8 @@ public class CommandLine {
 	 */
 	private void addRenter(){
 		String [] column_value = new String[2];
-		column_value = this.getInfo(renter_column_name, renter_column_name.length);
+		column_value = this.getInfo(renter_column_name, 1, renter_column_name.length);
+		this.insertOperator("renter", renter_column_name, column_value);
 	}
 
 	/**
@@ -287,9 +424,9 @@ public class CommandLine {
 	 * @param c: the number of the columns that you want to insert value
 	 * @return a string array that stores the value of columns
 	 */
-	private String[] getInfo(String[] column, int c){
-		String [] values = new String[c];
-		for (int i = 0; i < c; i ++){
+	private String[] getInfo(String[] column, int s, int e){
+		String [] values = new String[e - s + 1];
+		for (int i = s; i <= e; i ++){
 			System.out.println("Please type your " +  column[i] + " below");
 			values[i] = sc.nextLine();
 		}
@@ -348,6 +485,17 @@ public class CommandLine {
 		System.out.println("");
 		System.out.println("Rows affected: " + rowsAff);
 		System.out.println("");
+	}
+
+
+	private void deleteOperation(String table, String where_condition){
+		System.out.println(table);
+		String query = "";
+		query = "DELETE FROM" + table + "WHERE ";
+		query = query.concat(where_condition);
+		System.out.println(query);
+		sqlMngr.deleteOp(query);
+
 	}
 
 }
