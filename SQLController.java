@@ -89,13 +89,36 @@ public class SQLController {
 		}
 		return result;
 	}
+	/**
+	 * the function is use to create table
+	 * @param table: the name of the table
+	 * @param column_name: a string array that stores the name of columns
+	 * @param column_type: a string array that stores the type of the columns
+	 * @param key: primary key of the table, it is optional , if the key is null then do nothing otherwise concatenate it with the create table query
+	 */
+	public void createTable(String table, String[] column_name, String[] column_type, String key){
+		int counter = 0;
+		String sql = "CREATE TABLE IF NOT EXISTS " + table + "(";
+		for (counter = 0; counter < column_name.length; counter++) {
+			sql = sql.concat("'" + column_name[counter] + "'");
+			sql = sql.concat("'" +column_type[counter]+ "',");
+		}
+		sql = key != null ? sql.concat("PRIMARY KEY ( '" + key + "'));") : sql;
+		try {
+			ResultSet rs = st.executeQuery(sql);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 	//Controls the execution of a select query.
 	//Functionality: "2. Select a record."
-	public ArrayList<String> selectOp(String query) {
+	public ResultSet selectOp(String query) {
 		ArrayList<String> result = new ArrayList<String>();
+		ResultSet rs = null;
 		try {
-			ResultSet rs = st.executeQuery(query);
+			rs = st.executeQuery(query);
 			ResultSetMetaData rsmd = rs.getMetaData();
 			int colNum = rsmd.getColumnCount();
 			System.out.println("");
@@ -115,12 +138,46 @@ public class SQLController {
 			e.printStackTrace();
 		}
 		System.out.println();
-		return result;
+		return rs;
+	}
+
+	public ArrayList<ArrayList<String>> rsToList(ResultSet rs){
+		ArrayList<ArrayList<String>> result_list = new 	ArrayList<ArrayList<String>>();
+		try{
+			ResultSetMetaData md = rs.getMetaData();
+			int column_number = md.getColumnCount();
+
+			while(rs.next()){
+				ArrayList<String> row = new ArrayList<String>();
+				for(int i = 1; i <= column_number; i++){
+					row.add(rs.getString(i));
+				}
+				result_list.add(row);
+			}
+		}catch (SQLException e) {
+			System.err.println("Exception triggered during rsToList");
+			e.printStackTrace();
+		}
+		return result_list;
 	}
 
 	//Controls the execution of an insert query.
 	//Functionality: "1. Insert a record."
-	public int insertOp(String query) {
+	public int insertOp(String table, String[] column, String[] values) {
+		int rowsAff = 0;
+		int counter = 0;
+		String query = "";
+		System.out.print("Table: "+ table);
+		//transform the user input into a valid SQL insert statement
+		query = "INSERT INTO " + table + " (" + column + ") VALUES("; 
+		for (counter = 0; counter < values.length - 1; counter++) {
+			query = query.concat("'" + values[counter] + "',");
+		}
+		query = query.concat("'" + values[counter] + "');");
+		System.out.println(query);
+		System.out.println("");
+		System.out.println("Rows affected: " + rowsAff);
+		System.out.println("");
 		int rows = 0; 
 		try {
 			rows = st.executeUpdate(query);
@@ -130,16 +187,7 @@ public class SQLController {
 		}
 		return rows;
 	}
-	
-	public void deleteOp(String query){
-		try{
-			st.executeQuery(query);
-		} catch(SQLException e){
-			System.err.println("Exception triggered during Delete execution!");
-			e.printStackTrace();
-		}
-	}
-	
+
 	public void updateOp(String query){
 		try{
 			st.executeQuery(query);
@@ -148,5 +196,72 @@ public class SQLController {
 			e.printStackTrace();
 		}
 	}
+	public boolean checkExist(String select_col, String[] check_col, String[] value, String table){
+		boolean exist = false;
+		int i;
+		String sql = "SELECT '"+select_col+"' FROM '"+table+"' WHERE ";
+		for(i = 0; i < check_col.length - 1; i++){
+			sql = sql.concat(check_col[i]);
+			sql = sql.concat(" = ");
+			sql = sql.concat(value[i]);
+			sql = sql.concat("and");
+		}
+		sql = sql.concat(check_col[i]);
+		sql= sql.concat(" = ");
+		sql.concat(value[i]);
+		System.out.println("checkUnique sql :" + sql);
+		try{
+			if (this.selectOp(sql).next()){
+				exist = true;
+			}
+		}catch(Exception e){
+			System.err.println("Exception occur in User.checkUnqiue");
+			e.printStackTrace();
+		}
+		return exist;
+	}
 
+	public void deleteOperation(String table, String where_condition){
+		System.out.println(table);
+		String query = "";
+		query = "DELETE FROM" + table + "WHERE ";
+		query = query.concat(where_condition);
+		System.out.println(query);
+		this.deleteOp(query);
+
+	}
+
+	public void deleteOp(String query){
+		try{
+			st.executeQuery(query);
+		} catch(SQLException e){
+			System.err.println("Exception triggered during Delete execution!");
+			e.printStackTrace();
+		}
+	}
+
+	//print the records that stores in the resultset rs,
+	//TO DO:
+	// need to print in table format
+	public void printRecord(ResultSet rs){
+		try {
+			ResultSetMetaData rsmd = rs.getMetaData();
+			int columnsNumber = rsmd.getColumnCount();
+			for(int j = 1; j <= columnsNumber; j++){
+				if (j > 1) System.out.print("     ");
+				System.out.print(rsmd.getColumnName(j));
+			}
+			while (rs.next()) {
+				for (int i = 1; i <= columnsNumber; i++) {
+					if (i > 1) System.out.print("");
+					String columnValue = rs.getString(i);
+					System.out.print(columnValue);
+				}
+				System.out.println("");
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 }
