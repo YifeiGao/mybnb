@@ -1,13 +1,14 @@
 package project;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 public class User {
 
-	private static final String[] user_column_name = {"name", "password", "list address", "birth", "occup", "SIN", "canclellation", "user name"};
-	private static final String[] user_column_type = {"VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "INT NOT NULL", "VARCHAR(30) NOT NULL", "INT NOT NULL", "INT DEFAULT 0", "VARCHAR(30) NOT NULL"};
-	private static final String user_primary_key = "user name";
+	private static final String[] user_column_name = {"name", "password", "list_address", "birth", "occup", "SIN", "host_canclellation", "user_name", "renter_canclellation"};
+	private static final String[] user_column_type = {"VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "INT NOT NULL", "VARCHAR(30) NOT NULL", "INT NOT NULL", "INT DEFAULT 0", "VARCHAR(30) NOT NULL","INT DEFAULT 0"};
+	private static final String user_primary_key = "user_name";
 
 	private static String user_id;
 
@@ -51,7 +52,7 @@ public class User {
 		do{
 			System.out.println("Please type your username below");
 			user_name = CommandLine.sc.nextLine();
-			if(!CommandLine.sqlMngr.checkExist("*", new String[] {"user name"}, new String[] {user_name}, "users")){
+			if(!CommandLine.sqlMngr.checkExist("*", new String[] {"user_name"}, new String[] {user_name}, "users")){
 				System.out.println("Sorry the user id is not found, please type 1 to try again or type 2 to regist");
 				do{
 					System.out.print("Pleas type your choice [1-2]");
@@ -169,7 +170,6 @@ public class User {
 		}
 		return con;
 	}
-	
 	//operation 0
 	// sql keeps connected after user logout
 	private void logOut(){
@@ -196,7 +196,8 @@ public class User {
 			this.createUser();
 		}
 	}
-	
+
+
 	//operation 1
 	private void makeBooking(){
 
@@ -226,12 +227,12 @@ public class User {
 		}
 	}
 
-	//operation 4/10
 	// if opt.4 is chosen, print his/her recent and completed rental histories first,
 	// else if it is opt.10, print all recent and completed rental histories of all listings that he/she owns
 	// then ask them to input ratings and comments
 	private void writeComments(int choice){
 		Comments c = new Comments();
+		Booking b = new Booking();
 		if (choice == 3) {
 			b.getRecentCompletedRentalHistory();
 			c.insertRateAndComments("renter");
@@ -244,30 +245,90 @@ public class User {
 
 	//operation 5
 	private void addListing(){
-
+		int l_ID;
+		float price;
 		Listing l = new Listing();
-		l.addListing();
+		l_ID = l.addListing();
+		ListCalendar c = new ListCalendar();
+		c.insertListCalendar(l_ID, price);
+
 	}
 
 	//operation 6
 	private void getHostListings(){
 		Listing l = new Listing();
 		l.getHostListings();
+
 	}
 
 	//operation 9
 	private void updateAvai(){
 		//check if the current user owns listings
 		boolean check;
+		boolean own_list;
+		boolean date_exist;
+		String date;
+		String status;
+		String y_q;
+		String delete_fu_b;
+		int listId = -1000;
 		check = sqlMngr.checkExist("*", new String[]{"host name"}, new String[] {User.user_id}, "listing");
 		if(!check){
 			System.out.println("According our records, you are not a host yet. Please add listing first to become a host");
 			//TO Do:
 			//print the operation menue again and let the user re-choose an operation
+			this.operations();
+			return;
 		}
-		System.out.println("Please enter the listing ID");
-		String listId = CommandLine.sc.nextLine();
-
+		try{
+			do{
+				System.out.println("Please enter the listing ID");
+				listId = Integer.parseInt(CommandLine.sc.nextLine());
+				own_list = new Listing().ownList(listId, user_id);
+				if(!own_list){
+					System.out.println("According to our records. you do not own this listing, check if the listId is correct ");
+				}
+			}while(!own_list);
+		}catch(SQLException e){
+			System.out.println("Exception occurs in User.updateAvai");
+			e.printStackTrace();
+		}
+		do{
+			System.out.println("Please enter the date you want to change");
+			date = CommandLine.sc.nextLine();
+			date_exist = new ListCalendar().checkDate(listId, date);
+			if(!date_exist){
+				System.out.println("According to our records, the date is not open yet. The system only allow the host to open the future 2 months' calendar");
+			}
+		}while (!date_exist);
+		String original_status = new ListCalendar().checkStatus(listId, date);
+		System.out.println("The current status of the listing on that day is " + original_status);
+		do{
+			System.out.println("Please chose the status that you want to change. Type 'a' to change it availiable, or type 'u' to make it unavailiable");
+			status = CommandLine.sc.nextLine();
+		}while (!(status.equals("a") || status.equals("u")));
+		if(original_status.equals("b")){
+			System.out.println("The listing is booked on that day, do you want cancle this booking?");
+			do{
+				System.out.println("Type 'd' to delete the booking , type 'q' to quit and go back to operation menue padge");
+				y_q = CommandLine.sc.nextLine();
+			}while (!(y_q.equals("d") || y_q.equals("q")));
+			if (y_q.equals("y")){
+				//delete future booking
+				delete_fu_b = "DELETE FORM booking WHERE listing_id =  '"+listId+"' AND start_date <= '"+date+"' AND end_date >= '"+date+"';";
+				CommandLine.sqlMngr.excuteSql(delete_fu_b);
+				Booking b = new Booking();
+				b.updateCancellation("host");
+			}
+			else{
+				//quit and go back to operation menu
+				this.operations();
+				return;
+			}
+		}
+		else{
+			new ListCalendar().updateAva(listId, date, status);
+		}
 	}
 
 	//operation 11
@@ -284,12 +345,13 @@ public class User {
 		String date = CommandLine.sc.nextLine();
 		//TO DO:
 		//get the status of the listing on that day, if it is booked then need to delete the booking first, if it is unavailable update to available first 
-		float price = new Calendar().getPrice(listing_ID, date);
+		float price = new ListCalendar().getPrice(listing_ID, date);
 		System.out.println("According to our record, the price of the listing "+ listing_ID + " on " + date + " was " + price);
 		System.out.println("Please type the new price on that day");
 		float new_price = Float.parseFloat(CommandLine.sc.nextLine());
-		new Calendar().updatePrice(listing_ID, date, new_price);
+		new ListCalendar().updatePrice(listing_ID, date, new_price);
 
 	}
+
 
 }
