@@ -213,7 +213,7 @@ public class User {
 	//operation 6
 	private void getHostListings(){
 		Listing l = new Listing();
-
+		l.getHostListings();
 	}
 
 	//operation 9
