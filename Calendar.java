@@ -4,12 +4,18 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 
 public class Calendar {
 
-	private static String[] lists_calendar_name = {"date", "listing_id", "price", "available"};
+	private static String[] lists_calendar_name = {"date", "listing_id", "price", "available","start_date", "last_date"};
 	//available column has 3 types of value. 'a' rep available, 'b' rep booked, 'u' rep unavailable.
-	private static String[] lists_calendar_type = {"DATE NOT NULL", "INT NULL", "FLOAT NULL,", "VARCHAR(1) NULL"};
+	private static String[] lists_calendar_type = {"DATE NOT NULL", "INT NULL", "FLOAT NULL,", "VARCHAR(1) NULL", "DATE NOT NULL"};
 	private static String lists_calendar_primary_key = "listing_id, date";
 
 	private static String[] ints = {"i"};
@@ -31,8 +37,10 @@ public class Calendar {
 		CommandLine.sqlMngr.excuteSql(insert_date);
 		String update_other_column = "UPDATE lists_calendar"
 				+ "SET listing_id = '"+listing_ID+"',"
-				+ "price = '"+price+"'"
-				+ "available = 'a';";
+				+ "price = '"+price+"',"
+				+ "available = 'a',"
+				+ "start_date = CURDATE(),"
+				+ "last_date =  DATE_ADD(CURDATE(), INTERVAL 61 DAY) ;";
 		CommandLine.sqlMngr.excuteSql(update_other_column);	
 	}
 
@@ -77,5 +85,82 @@ public class Calendar {
 		}
 		return price;
 	}
+
+	private String getLastDate(int listing_ID){
+		String get_last = "SELECT last_date FROM lists_calendar WHERE listing_id = '"+listing_ID+"';";
+		ResultSet rs = CommandLine.sqlMngr.selectOp(get_last);
+		String last_date = null;
+		try {
+			last_date = rs.getString("last_date");
+		} catch (SQLException e) {
+			System.out.println("Exception occurs in Calendar.getLastDate");
+			e.printStackTrace();
+		}
+		return last_date;
+	}
+
+	private String getStartDate(int listing_ID){
+		String get_start = "SELECT start_date FROM lists_calendar WHERE listing_id = '"+listing_ID+"';";
+		ResultSet rs = CommandLine.sqlMngr.selectOp(get_start);
+		String start_date = null;
+		try {
+			start_date = rs.getString("start_date");
+		} catch (SQLException e) {
+			System.out.println("Exception occurs in Calendar.getStartDate");
+			e.printStackTrace();
+		}
+		return start_date;
+	}
+	//this function need to be called once we connected to the database
+	public void updateCalendar(){
+		String get_listings = "SELECT listing_ID FROM listing;";
+		ResultSet rs = CommandLine.sqlMngr.selectOp(get_listings);
+		try {
+			while(rs.next()){
+				this.updateListCalendar(rs.getInt("listing_ID"));
+			}
+		} catch (SQLException e) {
+			System.out.println("Exception occurs in Calendar.updatecalendar");
+			e.printStackTrace();
+		}
+	}
+
+	//it is a helper function of updateCalebdar
+	//this function is to update the calendar of the listing, we want to maintain the listing always opens the 2 future month's calendar
+	// this function also delete the calendar record that the date is before the current date
+	private void updateListCalendar(int listing_ID){
+		String last = this.getLastDate(listing_ID);
+		String start = this.getStartDate(listing_ID);
+		int diff_days = -3;
+		try {
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+			Date last_date = sdf.parse(last);
+			Date start_date = sdf.parse(start);
+			Date curr_date = new Date();
+			sdf.format(curr_date);
+			diff_days = (int) ((curr_date.getTime() - start_date.getTime())/(1000*60*60*24));
+		} catch (ParseException e) {
+			System.out.println("Exception occurs in Calendar.updateListCalendar");
+			e.printStackTrace();
+		}
+		System.out.println("test: the difference days from start day to current day is "+diff_days);
+		String insert_date = "INSERT INTO lists_calendar (date)"
+				+ "SELECT DATE('"+last+"') + INTERVAL a.i*10000 + b.i*1000 + c.i*100 + d.i*10 + e.i DAY"
+				+ "FROM ints a JOIN ints b JOIN ints c JOIN ints d JOIN ints e"
+				+ "WHERE(a.i*10000 + b.i*1000 + c.i*100 + d.i*10 + e.i) <= '"+diff_days+"'"
+				+ "ORDER BY 1;";
+		CommandLine.sqlMngr.excuteSql(insert_date);
+		//delete the calendar record from the table if the date is before the current date
+		String update_other_column = "UPDATE lists_calendar"
+				+ "SET listing_id = '"+listing_ID+"',"
+				+ "price = null,"
+				+ "available = 'a',"
+				+ "start_date = CURDATE(),"
+				+ "last_date =  DATE_ADD(CURDATE(), INTERVAL 61 DAY) ;";
+		CommandLine.sqlMngr.excuteSql(update_other_column);	
+		String delete_befor = "DELET FORM lists_calendar WHERE listing_id = '"+listing_ID+"' and date < CURDATE();";
+		CommandLine.sqlMngr.selectOp(delete_befor);
+	}
+
 
 }
