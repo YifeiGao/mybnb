@@ -106,5 +106,21 @@ public class Comments {
 			c.insertRateAndComments("host");
 		}
 	}
+	
+	public void getHostHistory(){
+		String query = "SELECT booking ID, list ID, host user name, start date, end date FROM booking WHERE host user name = '"+User.getUser()+"'"+"AND DATEDIFF(CURDATE(), end date) <= 365;";
+		ResultSet resultSet = sqlMngr.selectOp(query);
+		System.out.println("Here is your recent renting histories within a year. (NOTE: Any ongoing renting records won't be shown in this list.");
+		sqlMngr.printRecord(resultSet);
+	}
+
+	//get a list of recent booking histories, by default recent: 1year=365days
+	//this list does not include any future bookings
+	public void getRentalHistory(){
+		String query = "SELECT booking ID, list ID, renter user name, start date, end date FROM booking WHERE host user name = '"+User.getUser()+"'"+"AND DATEDIFF(CURDATE(), end date) <= 365;";
+		ResultSet resultSet = sqlMngr.selectOp(query);
+		System.out.println("Here is your recent renting histories within a year. (NOTE: Any ongoing renting records won't be shown in this list.");
+		sqlMngr.printRecord(resultSet);
+	}
 
 }
