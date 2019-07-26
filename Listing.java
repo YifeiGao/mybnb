@@ -5,7 +5,7 @@ public class Listing {
 	private static final String[] listing_column_name = {"list ID", "list latitude", "list longitude", "Country", "Province", "City", "house number and Street","host user name", "list type"};
 	private static final String[] listing_column_type = { "INT NOT NULL AUTO_INCREMENT", "DECIMAL(10, 8) NOT NULL", "DECIMAL(11, 8) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL","VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL","VARCHAR(30) NOT NULL"};
 	private static final String listing_primary_key = "list ID";
-	
+
 	private static final String[] amenites_column_name = {"list ID", "kitchen","heating","washer", "wifi", "indoor fireplace", "iron", "Laptop-friendly workspace", "crib", "self check_in", "carbon monoxide detector", "shampoo", "air conditioning", "dryer", "breakfast", "hangers", "hair dryer", "TV", "hight chair", "smoke detector", "private bathroom", "Country", "Province","City", "house number and Street"};
 	private static final String[] amenites_column_type = {"INT NOT NULL", "TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL"};
 	private static final String amenites_primary_key = "Country, Province, City, house number and Street";
@@ -26,10 +26,10 @@ public class Listing {
 		}while(!check);
 		column_values[listing_type.length - 1] = listing_type[choice];
 		User.sqlMngr.insertOp("listing", listing_column_name, column_values);
-		
+
 	}
-	
-	
+
+
 	private void listTypeMenu(){
 		System.out.println("=========LISTING TYPES=========");
 		for(int i = 0; i < 16; i++){
@@ -37,8 +37,8 @@ public class Listing {
 		}
 		System.out.print("Please select the type of your listing [0-15]: ");
 	}
-	
+
 	public void getHostListings(){
-		
+
 	}
 }
