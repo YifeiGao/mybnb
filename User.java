@@ -169,6 +169,34 @@ public class User {
 		}
 		return con;
 	}
+	
+	//operation 0
+	// sql keeps connected after user logout
+	private void logOut(){
+		this.setUser(null);
+		for (int i = 0; i < 5; i++) {
+			System.out.println(".");
+		}
+		System.out.println("Logged out successfully");
+		System.out.println("");
+		// Provide re-login/sign up options
+		String choice;
+		boolean check = false;
+		choice = CommandLine.sc.nextLine();
+		System.out.println("Welcome to Mybnb, if you want to login press 1, if you are not a user yet please press 2 to register");
+		while (!check){
+			check = choice.equals("1") | choice.equals("2");
+		}
+		if (choice.equals("1")){
+			//login operations
+			this.login();
+		}
+		else if (choice.equals("2")){
+			//create a user
+			this.createUser();
+		}
+	}
+	
 	//operation 1
 	private void makeBooking(){
 
