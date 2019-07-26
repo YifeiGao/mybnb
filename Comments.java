@@ -1,5 +1,7 @@
 package project;
 
+import java.util.ArrayList;
+
 import project.CommandLine;
 
 public class Comments {
@@ -36,9 +38,16 @@ public class Comments {
     "TEXT NOT NULL"};
 	
 	private static final String host_comments_primary_key = "renter user name, host user name, booking id, date";
-
+    String[] column_values = new String[renter_comments_column_name.length];
+    String[] column_types = renter_comments_column_type;
 	public void insertRateAndComments(String type){
     boolean valid;
+    String booking_id;
+    String list_rating;
+    String host_rating;
+    String renter_rating;
+    String renter_comment;
+    String host_comment;
     ArrayList<String> result;
     do{
       result = this.checkHistoryBookingId(type);
@@ -48,40 +57,38 @@ public class Comments {
     if (type.equals("renter")) {
       //case:Renter, needs to complete listing rating, host rating, and comment
       System.out.println("Please rate the listing from 1-5");
-      int list_rating = CommandLine.sc.nextLine();
+      list_rating = CommandLine.sc.nextLine();
       System.out.println("Please rate the host from 1-5");
-      int host_rating = CommandLine.sc.nextLine();
+      host_rating = CommandLine.sc.nextLine();
       System.out.println("Please write your comment here. If not applicable, please write n/a.");
-      String renter_comment = CommandLine.sc.nextLine();
+      renter_comment = CommandLine.sc.nextLine();
       // Store data values and types
-      String[] column_values = new String[renter_comments_column_name.length];
-      String[] column_types = renter_comments_column_type;
     } else if (type.equals("host")) {
       //case:Host, needs to complete renter rating, and comment
       System.out.println("Please rate the renter from 1-5");
-      int renter_rating = CommandLine.sc.nextLine();
+      renter_rating = CommandLine.sc.nextLine();
       System.out.println("Please write your comment here. If not applicable, please write n/a.");
-      String comment = CommandLine.sc.nextLine();
+      host_comment = CommandLine.sc.nextLine();
       // Store data values and types      
-      Stringp[] column_values = new String[host_comments_column_name.length];
-      String[] column_types = host_comments_column_type;
+      column_values = new String[host_comments_column_name.length];
+      column_types = host_comments_column_type;
     }
-    User.sqlMngr.insertOp("comments", column_types, column_values);	
+    CommandLine.sqlMngr.insertOp("comments", column_types, column_values);	
   }
   
-  private ArrayList<ArrayList<String>> checkHistoryBookingId(String type) {
-    String get_id_sql;
+  private ArrayList<String> checkHistoryBookingId(String type) {
+    String get_id_sql="";
     boolean check_id;
     ArrayList<ArrayList<String>> result = new ArrayList<ArrayList<String>>();
     do{
       System.out.println("Please enter the booking id that is provided in the list: ");
-			booking_id = CommandLine.sc.nextLine();
+			String booking_id = CommandLine.sc.nextLine();
 			if (type.equals("host")) {
 				get_id_sql = "SELECT booking ID, host user name, renter user name, CURDATE() FROM booking WHERE host user name = '"+User.getUser()+"'"+"AND DATEDIFF(CURDATE(), end date) <= 365 AND booking ID = '" + booking_id + "'";
 			}	else if (type.equals("renter")) {
 				get_id_sql = "SELECT booking ID, host user name, renter user name, CURDATE() FROM booking WHERE renter user name = '"+User.getUser()+"'"+"AND DATEDIFF(CURDATE(), end date) <= 365 AND booking ID = '" + booking_id + "'";
 			}
-			result = sqlMngr.rsToList(sqlMngr.selectOp(get_id_sql));
+			result = CommandLine.sqlMngr.rsToList(CommandLine.sqlMngr.selectOp(get_id_sql));
 			//check_id is true if the result list is empty which means the booking Id that the user provide is incorrect
 			check_id = result.isEmpty();
 			if (check_id){
@@ -90,37 +97,5 @@ public class Comments {
     }while (check_id);
     return result.get(0);
   }
-
-  // Function in User
-  //operation 4/10
-	// if opt.4 is chosen then print his/her recent and completed rental histories
-	// else if it is opt.10 then print all recent and completed rental histories of all listings that he/she owns
-	private void writeComments(int choice){
-		Comments c = new Comments();
-		if (choice == 3) {
-			b.getRentalHistory();
-			c.insertRateAndComments("renter");
-
-		} else if (choice == 10) {
-			b.getHostHistory();
-			c.insertRateAndComments("host");
-		}
-	}
-	
-	public void getHostHistory(){
-		String query = "SELECT booking ID, list ID, host user name, start date, end date FROM booking WHERE host user name = '"+User.getUser()+"'"+"AND DATEDIFF(CURDATE(), end date) <= 365;";
-		ResultSet resultSet = sqlMngr.selectOp(query);
-		System.out.println("Here is your recent renting histories within a year. (NOTE: Any ongoing renting records won't be shown in this list.");
-		sqlMngr.printRecord(resultSet);
-	}
-
-	//get a list of recent booking histories, by default recent: 1year=365days
-	//this list does not include any future bookings
-	public void getRentalHistory(){
-		String query = "SELECT booking ID, list ID, renter user name, start date, end date FROM booking WHERE host user name = '"+User.getUser()+"'"+"AND DATEDIFF(CURDATE(), end date) <= 365;";
-		ResultSet resultSet = sqlMngr.selectOp(query);
-		System.out.println("Here is your recent renting histories within a year. (NOTE: Any ongoing renting records won't be shown in this list.");
-		sqlMngr.printRecord(resultSet);
-	}
 
 }
