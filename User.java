@@ -199,8 +199,19 @@ public class User {
 	}
 
 	//operation 4/10
+	// if opt.4 is chosen, print his/her recent and completed rental histories first,
+	// else if it is opt.10, print all recent and completed rental histories of all listings that he/she owns
+	// then ask them to input ratings and comments
 	private void writeComments(int choice){
+		Comments c = new Comments();
+		if (choice == 3) {
+			b.getRecentCompletedRentalHistory();
+			c.insertRateAndComments("renter");
 
+		} else if (choice == 10) {
+			b.getRecentCompletedHostHistory();
+			c.insertRateAndComments("host");
+		}
 	}
 
 	//operation 5
