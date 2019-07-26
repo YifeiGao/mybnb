@@ -37,6 +37,7 @@ public class SQLController {
 		return success;
 	}
 
+
 	// Destroy the private objects/fields of current instance of this class.
 	// Acts like a destructor.
 	public void disconnect() {
@@ -196,6 +197,7 @@ public class SQLController {
 			e.printStackTrace();
 		}
 	}
+
 	public boolean checkExist(String select_col, String[] check_col, String[] value, String table){
 		boolean exist = false;
 		int i;
@@ -208,7 +210,8 @@ public class SQLController {
 		}
 		sql = sql.concat(check_col[i]);
 		sql= sql.concat(" = ");
-		sql.concat(value[i]);
+		sql = sql.concat(value[i]);
+		sql = sql.concat(";");
 		System.out.println("checkUnique sql :" + sql);
 		try{
 			if (this.selectOp(sql).next()){
@@ -226,6 +229,7 @@ public class SQLController {
 		String query = "";
 		query = "DELETE FROM" + table + "WHERE ";
 		query = query.concat(where_condition);
+		query = query.concat(";");
 		System.out.println(query);
 		this.deleteOp(query);
 
@@ -264,4 +268,17 @@ public class SQLController {
 			e.printStackTrace();
 		}
 	}
+
+	public void excuteSql(String sql){
+		try{
+			st.executeQuery(sql);
+		} catch(SQLException e){
+			System.err.println("Exception triggered during excuteSql execution!");
+			e.printStackTrace();
+		}
+
+	}
+
+
+
 }
