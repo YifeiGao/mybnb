@@ -39,6 +39,9 @@ public class Listing {
 	}
 
 	public void getHostListings(){
-
+		String query = "SELECT list ID, list latitude, list longitude, Country, Province, City, house number and Street, list type, kitchen, heating, washer, wifi, indoor fireplace, iron, Laptop-friendly workspace, crib, self check_in, carbon monoxide detector, shampoo, air conditioning, dryer, breakfast, hangers, hair dryer, TV, hight chair, smoke detector, private bathroom FROM listing NATURAL JOIN amenities WHERE host user name = '" + User.getUser() + "';";
+		ResultSet resultSet = sqlMngr.selectOp(query);
+		System.out.println("Here is all the listings under your account.");
+		sqlMngr.printRecord(resultSet);
 	}
 }
