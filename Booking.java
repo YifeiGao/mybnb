@@ -11,27 +11,27 @@ import java.sql.*;
 
 public class Booking {
 	private static SQLController sqlMngr = User.sqlMngr;
-	
+
 	private static final String [] booking_column_name = {"booking ID", "list ID", "host user name", "renter user name",  "start date", "end date"};
 	private static final String [] booking_column_type = {"INT AUTO_INCREMENT", "INT NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL",  "DATE NOT NULL", "DATE NOT NULL"};
 	private static final String booking_primary_key = "booking ID";
-	
+
 	public void getHostHistory(){
-		String query = "SELECT booking ID, list ID, renter user name, start date, end date FROM booking where host user name = '"+User.getUser()+"'";
-		ResultSet resultSet = User.sqlMngr.selectOp(query);
+		String query = "SELECT booking ID, list ID, renter user name, start date, end date FROM booking where host user name = '"+User.getUser()+"';";
+		ResultSet resultSet = sqlMngr.selectOp(query);
 		System.out.println("This is the rental history of all the listings that you owned, notice the history record is grouped by the listing Id");
 		sqlMngr.printRecord(resultSet);
 	}
-	
+
 	public void getRentalHistory(){
-		String query = "SELECT booking ID, list ID, renter user name, start date, end date FROM booking where renter user name = '"+User.getUser()+"'";
-		ResultSet resultSet = User.sqlMngr.selectOp(query);
+		String query = "SELECT booking ID, list ID, host_user_name, start_date, end_date FROM booking where renter user_name = '"+User.getUser()+"';";
+		ResultSet resultSet = sqlMngr.selectOp(query);
 		System.out.println("This is the rental history that you have rented, notice that the history is order by listing ID");
 		sqlMngr.printRecord(resultSet);
 	}
-	
 
-	
+
+
 	public void deletBooking(String type){
 		ArrayList<String> result = new ArrayList<String>();
 		boolean valid = false;
@@ -46,7 +46,7 @@ public class Booking {
 		booking_id = result.get(0);
 		sqlMngr.deleteOperation("booking", "booking ID = '"+booking_id+"'");
 		//update the user's cancellation time
-		get_cancel_sql = "SELECT cancellation FROM users WHERE user name = " + User.getUser();
+		get_cancel_sql = "SELECT cancellation FROM users WHERE user name = " + User.getUser() + ";";
 		cancellation = Integer.parseInt(sqlMngr.rsToList(sqlMngr.selectOp(get_cancel_sql)).get(0).get(0));
 		cancellation += 1;
 		update_sql = "UPDATE users set cancellation = '"+cancellation+"' WHERE user name = " + User.getUser();
@@ -67,10 +67,10 @@ public class Booking {
 			System.out.println("Please provide the booking ID of the future booking that you want to cancle" );
 			booking_id = CommandLine.sc.nextLine();
 			if(type.equals("host")){
-				get_id_sql = "SELECT * FROM booking WHERE host user name = '"+User.getUser()+"' and booking id  = '"+booking_id+"'";
+				get_id_sql = "SELECT * FROM booking WHERE host user name = '"+User.getUser()+"' and booking id  = '"+booking_id+"';";
 			}
 			else{
-				get_id_sql = "SELECT * FROM booking WHERE renter user name = '"+User.getUser()+"' and booking id  = '"+booking_id+"'";
+				get_id_sql = "SELECT * FROM booking WHERE renter user name = '"+User.getUser()+"' and booking id  = '"+booking_id+"';";
 			}
 			result = sqlMngr.rsToList(sqlMngr.selectOp(get_id_sql));
 			//check_id is true if the result list is empty which means the booking Id that the user provide is incorrect
@@ -81,7 +81,7 @@ public class Booking {
 		}while (check_id);
 		return result.get(0);
 	}
-	
+
 	private boolean checkFuture(ArrayList<String> result_list){
 		boolean check_date = false;
 		//get the current date which named curr, the time zone is GMT
@@ -106,7 +106,7 @@ public class Booking {
 		}
 		return check_date;
 	}
-	
+
 
 
 }
