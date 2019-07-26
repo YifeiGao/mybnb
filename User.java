@@ -7,7 +7,7 @@ public class User {
 
 	private static final String[] user_column_name = {"name", "password", "list address", "birth", "occup", "SIN", "canclellation", "user name"};
 	private static final String[] user_column_type = {"VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "INT NOT NULL", "VARCHAR(30) NOT NULL", "INT NOT NULL", "INT DEFAULT 0", "VARCHAR(30) NOT NULL"};
-	private static final String user_primary_key = "user id";
+	private static final String user_primary_key = "user name";
 
 	private static String user_id;
 
@@ -73,7 +73,7 @@ public class User {
 		do{
 			System.out.println("Please type your password below");
 			pass = CommandLine.sc.nextLine();
-			sql = "SELECT password FROM users WHERE user name = '"+user_name+"'";
+			sql = "SELECT password FROM users WHERE user name = '"+user_name+"';";
 			result = CommandLine.sqlMngr.rsToList(CommandLine.sqlMngr.selectOp(sql));	
 			check_pass = (result.get(0).equals(pass));
 			if(!check_pass){
@@ -205,16 +205,17 @@ public class User {
 
 	//operation 5
 	private void addListing(){
-			Listing l = new Listing();
-			l.addListing();
+
+		Listing l = new Listing();
+		l.addListing();
 	}
-	
+
 	//operation 6
 	private void getHostListings(){
-			Listing l = new Listing();
+		Listing l = new Listing();
 
 	}
-	
+
 	//operation 9
 	private void updateAvai(){
 		//check if the current user owns listings
@@ -225,7 +226,31 @@ public class User {
 			//TO Do:
 			//print the operation menue again and let the user re-choose an operation
 		}
-		System.out.println("Please enter the listing ");
+		System.out.println("Please enter the listing ID");
+		String listId = CommandLine.sc.nextLine();
+
+	}
+
+	//operation 11
+	private void updatePrice(){
+		String status;
+		System.out.println("Following are the listings that you own");
+		//TO DO:
+		//print the listing that the user owns
+		System.out.println("Please enter the listing ID that you want to update");
+		int listing_ID = Integer.parseInt(CommandLine.sc.nextLine());
+		//TO Do:
+		//check if the listing ID that the host typed is correct
+		System.out.println("Please enter the date that you want to change, please type in yyyy-MM-dd format");
+		String date = CommandLine.sc.nextLine();
+		//TO DO:
+		//get the status of the listing on that day, if it is booked then need to delete the booking first, if it is unavailable update to available first 
+		float price = new Calendar().getPrice(listing_ID, date);
+		System.out.println("According to our record, the price of the listing "+ listing_ID + " on " + date + " was " + price);
+		System.out.println("Please type the new price on that day");
+		float new_price = Float.parseFloat(CommandLine.sc.nextLine());
+		new Calendar().updatePrice(listing_ID, date, new_price);
+
 	}
 
 }
