@@ -10,29 +10,30 @@ import java.util.ArrayList;
 public class SQLController {
 
 	private static final String dbClassName = "com.mysql.jdbc.Driver";
-	private static final String CONNECTION = "jdbc:mysql://127.0.0.1/";
+	private static final String CONNECTION = "jdbc:mysql://127.0.0.1/mybnb";
 	//Object that establishes and keeps the state of our application's
 	//connection with the MySQL backend.
-	private Connection conn = null;
 	//Object which communicates with the SQL backend delivering to it the
 	//desired query from our application and returning the results of this
 	//execution the same way that are received from the SQL backend.
 	private Statement st = null;
+	private Connection conn = null;
 
 	// Initialize current instance of this class.
-	public boolean connect(String[] cred) throws ClassNotFoundException {
-		Class.forName(dbClassName);
-		boolean success = true;
-		String user = cred[0];
-		String pass = cred[1];
-		String connection = CONNECTION + cred[2];
+	public boolean connect() throws ClassNotFoundException {
+		boolean success;
+		Class.forName(dbClassName);;
+		String user = "root";
+		String pass = "Sq@19870202";
 		try {
-			conn = DriverManager.getConnection(connection, user, pass);
+			conn = DriverManager.getConnection(CONNECTION, user, pass);
 			st = conn.createStatement();
+			success = true;
+			System.out.println("connected!!!");
 		} catch (SQLException e) {
-			success = false;
 			System.err.println("Connection could not be established!");
 			e.printStackTrace();
+			success = false;
 		}
 		return success;
 	}
@@ -54,7 +55,7 @@ public class SQLController {
 	}
 
 	// Controls the execution of functionality: "3. Print schema."
-	public ArrayList<String> getSchema() {
+	/*public ArrayList<String> getSchema() {
 		ArrayList<String> output = new ArrayList<String>();
 		try {
 			DatabaseMetaData meta = conn.getMetaData();
@@ -70,10 +71,10 @@ public class SQLController {
 			output.clear();
 		}
 		return output;
-	}
+	}*/
 
 	// Controls the execution of functionality: "4. Print table schema."
-	public ArrayList<String> colSchema(String tableName) {
+	/*public ArrayList<String> colSchema(String tableName) {
 		ArrayList<String> result = new ArrayList<String>();
 		try {
 			DatabaseMetaData meta = conn.getMetaData();
@@ -89,7 +90,7 @@ public class SQLController {
 			result.clear();
 		}
 		return result;
-	}
+	}*/
 	/**
 	 * the function is use to create table
 	 * @param table: the name of the table
@@ -98,15 +99,23 @@ public class SQLController {
 	 * @param key: primary key of the table, it is optional , if the key is null then do nothing otherwise concatenate it with the create table query
 	 */
 	public void createTable(String table, String[] column_name, String[] column_type, String key){
-		int counter = 0;
-		String sql = "CREATE TABLE IF NOT EXISTS " + table + "(";
-		for (counter = 0; counter < column_name.length; counter++) {
-			sql = sql.concat("'" + column_name[counter] + "'");
-			sql = sql.concat("'" +column_type[counter]+ "',");
-		}
-		sql = key != null ? sql.concat("PRIMARY KEY ( '" + key + "'));") : sql;
 		try {
-			ResultSet rs = st.executeQuery(sql);
+			boolean exist ;
+			//check if the table exists or not
+			DatabaseMetaData dbm = conn.getMetaData();
+			ResultSet tables = dbm.getTables(null, null, table, null);
+			exist = tables.next();
+			if(!exist){
+				int counter = 0;
+				String sql = "CREATE TABLE IF NOT EXISTS " + table + "(";
+				for (counter = 0; counter < column_name.length; counter++) {
+					sql = sql.concat("'" + column_name[counter] + "'");
+					sql = sql.concat("'" +column_type[counter]+ "',");
+				}
+				sql = key != null ? sql.concat("PRIMARY KEY ( '" + key + "'));") : sql;
+				ResultSet rs = st.executeQuery(sql);
+
+			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -269,13 +278,15 @@ public class SQLController {
 		}
 	}
 
-	public void excuteSql(String sql){
+	public ResultSet excuteSql(String sql){
+		ResultSet rs = null;
 		try{
-			st.executeQuery(sql);
+			rs = st.executeQuery(sql);
 		} catch(SQLException e){
 			System.err.println("Exception triggered during excuteSql execution!");
 			e.printStackTrace();
 		}
+		return rs;
 
 	}
 
