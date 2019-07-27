@@ -10,8 +10,6 @@ import java.util.TimeZone;
 
 public class CommandLine {
 
-
-
 	private static final String[] renter_column_name = {"credit card number", "user name"};
 	private static final String[] renter_column_type = {"INT NOT NULL", "VARCHAR(30) NOT NULL"};
 	private static final String renter_primary_key = "credit card number";
@@ -28,6 +26,8 @@ public class CommandLine {
 	// 'sc' is needed in order to scan the inputs provided by the user
 	public static Scanner sc = null;
 
+
+
 	//Public functions - CommandLine State Functions
 
 	/* Function used for initializing an istance of current
@@ -42,9 +42,7 @@ public class CommandLine {
 			sqlMngr = new SQLController();
 		}
 		try {
-			success = sqlMngr.connect(this.getCredentials());
-			User user = new User();
-			user.userStart(sqlMngr);
+			success = sqlMngr.connect();
 		} catch (ClassNotFoundException e) {
 			success = false;
 			System.err.println("Establishing connection triggered an exception!");
@@ -55,6 +53,96 @@ public class CommandLine {
 		return success;
 	}
 
+	public boolean execute(){
+		if(sc != null && sqlMngr != null){
+			User u = new User();
+			int choice = -1;
+			String input = "";
+			boolean log_in;
+			log_in = u.userStart();
+			boolean con = true;
+			do{
+				input = sc.nextLine();
+				try{
+					choice = Integer.parseInt(input);
+					switch(choice){
+					case 0:
+						log_in = false;
+						u.logOut();
+						break;
+					case 1:
+						u.makeBooking();
+						break;
+					case 2:
+						u.printHistory(choice);
+						break;
+					case 3:
+						u.deleteFutureBooking(choice);
+						break;
+					case 4:
+						u.writeComments(choice);
+						break;
+					case 5:
+						con = u.hostNotice();
+						if(con){
+							u.addListing();
+						}
+						break;
+					case 6:
+						con = u.hostNotice();
+						if(con){
+							u.getHostListings();
+						}
+						break;
+					case 7:
+						con = u.hostNotice();
+						if(con){
+							u.printHistory(choice);
+						}
+						break;
+					case 8:
+						con = u.hostNotice();
+						if(con){
+							u.deleteFutureBooking(choice);
+						}
+						break;
+					case 9:
+						con = u.hostNotice();
+						if(con){
+							u.updateAvai();
+						}
+						break;
+					case 10:
+						con = u.hostNotice();
+						if(con){
+							u.writeComments(choice);
+						}
+						break;
+					case 11:
+						con = u.hostNotice();
+						if(con){
+							u.updatePrice();
+						}
+						break;
+					default:
+						break;
+					}
+				}catch (NumberFormatException e){
+					input = "-1";
+					System.err.println("NumberFormatException occurs in CommandLine.excute");
+					e.printStackTrace();
+				}
+			}while(log_in);
+			return true;
+		}
+		else {
+			System.out.println("");
+			System.out.println("Connection could not been established! Bye!");
+			System.out.println("");
+			return false;
+		}
+	}
+
 
 
 	/**
@@ -63,11 +151,11 @@ public class CommandLine {
 	 * @param c: the number of column that need the user's input value
 	 * @return a string array that stores the value of columns
 	 */
-	public static String[] getInfo(String[] column, int c){
-		String [] values = new String[c];
-		for (int i = 0; i < c; i ++){
+	public static ArrayList<String> getInfo(String[] column, int start_c, int end_c){
+		ArrayList<String> values = new ArrayList<String>(column.length);
+		for (int i = start_c; i <= end_c; i ++){
 			System.out.println("Please type the " +  column[i] + " below");
-			values[i] = CommandLine.sc.nextLine();
+			values.add(i, CommandLine.sc.nextLine());
 		}
 		return values;
 	}
@@ -98,17 +186,9 @@ public class CommandLine {
 		sc = null;
 	}
 
-	// Called during the initialization of an instance of the current class
-	// in order to retrieve from the user the credentials with which our program
-	// is going to establish a connection with MySQL
-	private String[] getCredentials() {
-		String[] cred = new String[3];
-		System.out.print("Username: ");
-		cred[0] = sc.nextLine();
-		System.out.print("Password: ");
-		cred[1] = sc.nextLine();
-		System.out.print("Database: ");
-		cred[2] = sc.nextLine();
-		return cred;
-	}
+
+
+
+
+
 }
