@@ -8,7 +8,7 @@ public class ListCalendar {
 
 	private static String[] lists_calendar_name = {"date", "list_ID", "price", "available","start_date", "last_date"};
 	//available column has 3 types of value. 'a' rep available, 'b' rep booked, 'u' rep unavailable.
-	private static String[] lists_calendar_type = {"DATE NOT NULL", "INT NOT NULL", "FLOAT NOT NULL,", "VARCHAR(1) NOT NULL", "DATE NOT NULL", "DATE NOT NULL" };
+	private static String[] lists_calendar_type = {"DATE NOT NULL", "INT NOT NULL", "FLOAT NOT NULL", "VARCHAR(1) NOT NULL", "DATE NOT NULL", "DATE NOT NULL" };
 	private static String lists_calendar_primary_key = "list_ID, date";
 
 	private static String[] ints = {"i"};
