@@ -240,7 +240,7 @@ public class User {
 	public void writeComments(int choice){
 		Comments c = new Comments();
 		Booking b = new Booking();
-		if (choice == 3) {
+		if (choice == 4) {
 			b.getRecentCompletedRentalHistory(this.curr_user);
 			c.insertRateAndComments("renter", this.curr_user);
 
