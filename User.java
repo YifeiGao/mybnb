@@ -1,26 +1,33 @@
 package project;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 public class User {
 
-	private static final String[] user_column_name = {"name", "password", "list_address", "birth", "occup", "SIN", "host_canclellation", "user_name", "renter_canclellation"};
-	private static final String[] user_column_type = {"VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "INT NOT NULL", "VARCHAR(30) NOT NULL", "INT NOT NULL", "INT DEFAULT 0", "VARCHAR(30) NOT NULL","INT DEFAULT 0"};
+	private static final String[] user_column_name = {"name", "password", "list_address", "birth", "occup", "SIN", "user_name","host_canclellation", "renter_canclellation"};
+	private static final String[] user_column_type = {"VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "DATE NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "INT DEFAULT 0", "INT DEFAULT 0"};
 	private static final String user_primary_key = "user_name";
 
 	private String curr_user;
 
 	public static SQLController sqlMngr = new SQLController();
 	public User(){
-		try {
-			sqlMngr.connect();
-		} catch (ClassNotFoundException e) {
-			System.err.println("Esception occurs in User.constructor");
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		//sqlMngr.connect();
+		sqlMngr = CommandLine.sqlMngr;
+	}
+	public static String[] getUserColumn(){
+		return user_column_name;
+	}
+	
+	public static String[] getUserColumnType(){
+		return user_column_type;
+	}
+	
+	public static String getUserKey(){
+		return user_primary_key;
 	}
 	/**
 	 * function will be operate after connected successfully, it handle user's login and register
@@ -31,10 +38,13 @@ public class User {
 		String choice;
 		boolean check;
 		boolean log_in;
-		choice = CommandLine.sc.nextLine();
 		System.out.println("Welcome to Mybnb, if you want to login press 1, if you are not a user yet please press 2 to register");
 		do{
+			choice = CommandLine.sc.nextLine();
 			check = choice.equals("1") || choice.equals("2");
+			if(!check){
+				System.out.println("Please chose an operation that provided");
+			}
 		}while(!check);
 		if (choice.equals("1")){
 			//login operations
@@ -64,14 +74,15 @@ public class User {
 			System.out.println("Please type your username below");
 			user_name = CommandLine.sc.nextLine();
 			choice = 0;
-			if(!sqlMngr.checkExist("*", new String[] {"user_name"}, new String[] {user_name}, "users")){
+			boolean exist = sqlMngr.checkExist("*", new String[] {"user_name"}, new String[] {user_name}, "users");
+			if(!exist){
 				System.out.println("Sorry the user id is not found, please type 1 to try again or type 2 to regist");
 				do{
-					System.out.print("Pleas type your choice [1-2]");
+					System.out.println("Pleas type your choice [1-2]:");
 					choice = Integer.parseInt(CommandLine.sc.nextLine());
-				}while(choice != 2 || choice != 1);
+				}while(!(choice == 1 || choice == 2));
 			}
-		}while(choice == 1 && !sqlMngr.checkExist("*", new String[] {"user_name"}, new String[] {user_name}, "users"));
+		}while(choice == 1 & !sqlMngr.checkExist("*", new String[] {"user_name"}, new String[] {user_name}, "users"));
 		if(choice == 2){
 			log_in = this.createUser();
 			return log_in;
@@ -82,12 +93,15 @@ public class User {
 				do{
 					System.out.println("Please type your password below");
 					pass = CommandLine.sc.nextLine();
-					sql = "SELECT password FROM users WHERE user name = '"+user_name+"';";
-					result = sqlMngr.selectOp(sql).getString("password");
+					sql = "SELECT password FROM users WHERE user_name = '"+user_name+"';";
+					ResultSet rs = sqlMngr.selectOp(sql);
+					rs.next();
+					result = rs.getString("password");
 					check_pass = (result.equals(pass));
 					if(!check_pass){
 						System.out.println("incorrect password");
 					}
+					rs.close();
 				}while (!check_pass);
 			}catch(SQLException e){
 				System.err.println("Exception in User.login");
@@ -116,7 +130,7 @@ public class User {
 	private boolean createUser(){
 		boolean user_exist;
 		String[] column_values = new String[user_column_name.length];
-		column_values = CommandLine.getInfo(user_column_name, 0, user_column_name.length-1).toArray(new String[0]);
+		column_values = CommandLine.getInfo(user_column_name, 0, 6).toArray(new String[0]);
 		// check if the user name is already existed, if so then choose another user name
 		do{
 			user_exist = sqlMngr.checkExist("*", new String[] {"user_name"}, new String[] {column_values[Arrays.asList(user_column_name).indexOf("user_name")]}, "users");
@@ -208,6 +222,7 @@ public class User {
 		Listing l = new Listing();
 		System.out.println("Please make a booking for the coming 2months");
 		l.getListing(this.curr_user);
+
 	}
 	//operation 2/7
 	public void printHistory(int choice){
@@ -258,6 +273,7 @@ public class User {
 		l_ID = l.addListing();
 		price = l.getAvePrice(l_ID);
 		ListCalendar c = new ListCalendar();
+		System.out.println("The system provid a suggestion price according to tsthe listing's address, the price is "+ price +". It will be the initial price in your listing calendar, you can update the price by doing the operation 11");
 		c.insertListCalendar(l_ID, price);
 
 	}
