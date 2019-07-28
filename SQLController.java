@@ -10,7 +10,7 @@ import java.util.ArrayList;
 public class SQLController {
 
 	private static final String dbClassName = "com.mysql.jdbc.Driver";
-	private static final String CONNECTION = "jdbc:mysql://127.0.0.1/mybnb";
+	private static final String CONNECTION = "jdbc:mysql://127.0.0.1/test1";
 	//Object that establishes and keeps the state of our application's
 	//connection with the MySQL backend.
 	//Object which communicates with the SQL backend delivering to it the
@@ -28,6 +28,7 @@ public class SQLController {
 		try {
 			conn = DriverManager.getConnection(CONNECTION, user, pass);
 			st = conn.createStatement();
+
 			success = true;
 			System.out.println("connected!!!");
 		} catch (SQLException e) {
@@ -91,6 +92,15 @@ public class SQLController {
 		}
 		return result;
 	}*/
+	public void initialize(){
+		this.createTable("users", User.getUserColumn(), User.getUserColumnType(), User.getUserKey());
+		this.createTable("listing", Listing.getListingColumn(), Listing.getListingColumnType(), Listing.getListingKey());
+		this.createTable("amenities", Listing.getAmColumn(), Listing.getAmColumnType(), Listing.getAmKey());
+		this.createTable("booking", Booking.getBookingColumn(), Booking.getBookingColumnType(), Booking.getBookingKey());
+		this.createTable("lists_calendar", ListCalendar.getCColumn(), ListCalendar.getCColumnType(), ListCalendar.getCKey());
+		this.createTable("ints", ListCalendar.getIColumn(), ListCalendar.getIColumnType(), null);
+		//ListCalendar.initialInts();
+	}
 	/**
 	 * the function is use to create table
 	 * @param table: the name of the table
@@ -106,27 +116,26 @@ public class SQLController {
 			ResultSet tables = dbm.getTables(null, null, table, null);
 			exist = tables.next();
 			if(!exist){
-				int counter = 0;
+				int counter;
 				String sql = "CREATE TABLE IF NOT EXISTS " + table + "(";
-				for (counter = 0; counter < column_name.length; counter++) {
-					sql = sql.concat("'" + column_name[counter] + "'");
-					sql = sql.concat("'" +column_type[counter]+ "',");
+				for (counter = 0; counter < column_name.length -1; counter++) {
+					sql = sql.concat(column_name[counter] + " ");
+					sql = sql.concat(column_type[counter]+ ", ");
 				}
-				sql = key != null ? sql.concat("PRIMARY KEY ( '" + key + "'));") : sql;
-				ResultSet rs = st.executeQuery(sql);
+				if(key != null){
+					sql = sql.concat(column_name[column_name.length - 1] + " ");
+					sql = sql.concat(column_type[column_type.length - 1]+ ", ");
+					sql = sql.concat("PRIMARY KEY (" + key + "));");
+				}
+				else{
+					sql = sql.concat(column_name[column_name.length - 1] + " ");
+					sql = sql.concat(column_type[column_type.length - 1]+ "); ");
+				}
+				st.executeUpdate(sql);
 
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	public void createTempTable(String query){
-		try{
-			st.executeQuery(query);
-		} catch(SQLException e){
-			System.err.println("Exception triggered during create table operation execution!");
 			e.printStackTrace();
 		}
 	}
@@ -138,25 +147,12 @@ public class SQLController {
 		ResultSet rs = null;
 		try {
 			rs = st.executeQuery(query);
-			ResultSetMetaData rsmd = rs.getMetaData();
-			int colNum = rsmd.getColumnCount();
-			System.out.println("");
-			for (int i = 0; i < colNum; i++) {
-				System.out.print(rsmd.getColumnLabel(i+1) + "\t");
-			}
-			System.out.println("");
-			while(rs.next()) {
-				for (int i = 0; i < colNum; i++) {
-					System.out.print(rs.getString(i+1) + "\t");
-				}
-				System.out.println("");
-			}
-			rs.close();
 		} catch (SQLException e) {
 			System.err.println("Exception triggered during Select execution!");
 			e.printStackTrace();
 		}
 		System.out.println();
+
 		return rs;
 	}
 
@@ -186,14 +182,18 @@ public class SQLController {
 		int rowsAff = 0;
 		int counter = 0;
 		String query = "";
+		String column_name = "INSERT INTO " + table +" (";
+		String column_values = "VALUES(";
 		System.out.print("Table: "+ table);
 		//transform the user input into a valid SQL insert statement
-		query = "INSERT INTO " + table + " (" + column + ") VALUES("; 
 		for (counter = 0; counter < values.length - 1; counter++) {
-			query = query.concat("'" + values[counter] + "',");
+			column_name = column_name.concat(column[counter] + ", ");
+			column_values = column_values.concat("'" + values[counter] + "',");
 		}
-		query = query.concat("'" + values[counter] + "');");
-		System.out.println(query);
+		column_name = column_name.concat(column[counter] + ") ");
+		column_values = column_values.concat("'" + values[counter] + "');");
+		query = column_name.concat(column_values);
+		System.out.println("insert query" + query);
 		System.out.println("");
 		System.out.println("Rows affected: " + rowsAff);
 		System.out.println("");
@@ -207,24 +207,6 @@ public class SQLController {
 		return rows;
 	}
 
-	//Controls the execution of an insert query, and return the auto incremented id.
-	public int insertGetID(String query) {
-		try{
-			st.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);
-    	int id = -1;
-			ResultSet rs = st.getGeneratedKeys();
-			if (rs.next()) {
-					id = rs.getInt(1);
-			} 
-			rs.close();
-			return id;
-		} catch(SQLException e){
-			System.err.println("Exception triggered during insertGetID execution!");
-			e.printStackTrace();
-		}
-		return -1;
-	}
-
 	public void updateOp(String query){
 		try{
 			st.executeQuery(query);
@@ -235,27 +217,35 @@ public class SQLController {
 	}
 
 	public boolean checkExist(String select_col, String[] check_col, String[] value, String table){
-		boolean exist = false;
 		int i;
-		String sql = "SELECT '"+select_col+"' FROM '"+table+"' WHERE ";
+		 boolean exist;
+		String sql = "SELECT "+select_col+" FROM "+table+" WHERE ";
 		for(i = 0; i < check_col.length - 1; i++){
 			sql = sql.concat(check_col[i]);
 			sql = sql.concat(" = ");
-			sql = sql.concat(value[i]);
-			sql = sql.concat("and");
+			sql = sql.concat("'" + value[i] + "'");
+			sql = sql.concat(" AND ");
 		}
 		sql = sql.concat(check_col[i]);
 		sql= sql.concat(" = ");
-		sql = sql.concat(value[i]);
+		sql = sql.concat("'" + value[i] + "'");
 		sql = sql.concat(";");
-		System.out.println("checkUnique sql :" + sql);
 		try{
-			if (this.selectOp(sql).next()){
+			ResultSet rs = this.selectOp(sql);
+			boolean test = rs.next();
+			if (test){
+				rs.close();
 				exist = true;
 			}
+			else{
+				rs.close();
+				exist = false;
+			}
+			
 		}catch(Exception e){
-			System.err.println("Exception occur in User.checkUnqiue");
+			System.err.println("Exception occur in SQLController.checkExist");
 			e.printStackTrace();
+			return false;
 		}
 		return exist;
 	}
@@ -316,6 +306,32 @@ public class SQLController {
 		return rs;
 
 	}
+	//Controls the execution of an insert query, and return the auto incremented id.
+			public int insertGetID(String query) {
+				try{
+					st.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);
+		    	int id = -1;
+					ResultSet rs = st.getGeneratedKeys();
+					if (rs.next()) {
+							id = rs.getInt(1);
+					} 
+					rs.close();
+					return id;
+				} catch(SQLException e){
+					System.err.println("Exception triggered during insertGetID execution!");
+					e.printStackTrace();
+				}
+				return -1;
+			}
+			public void createTempTable(String query){
+				try{
+					st.executeQuery(query);
+				} catch(SQLException e){
+					System.err.println("Exception triggered during create table operation execution!");
+					e.printStackTrace();
+				}
+			}
+		
 
 
 
