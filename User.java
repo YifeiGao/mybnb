@@ -205,7 +205,9 @@ public class User {
 
 	//operation 1
 	public void makeBooking(){
-
+		Listing l = new Listing();
+		System.out.println("Please make a booking for the coming 2months");
+		l.getListing(this.curr_user);
 	}
 	//operation 2/7
 	public void printHistory(int choice){
