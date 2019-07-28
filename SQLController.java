@@ -122,6 +122,15 @@ public class SQLController {
 		}
 	}
 
+	public void createTempTable(String query){
+		try{
+			st.executeQuery(query);
+		} catch(SQLException e){
+			System.err.println("Exception triggered during create table operation execution!");
+			e.printStackTrace();
+		}
+	}
+
 	//Controls the execution of a select query.
 	//Functionality: "2. Select a record."
 	public ResultSet selectOp(String query) {
@@ -196,6 +205,24 @@ public class SQLController {
 			e.printStackTrace();
 		}
 		return rows;
+	}
+
+	//Controls the execution of an insert query, and return the auto incremented id.
+	public int insertGetID(String query) {
+		try{
+			st.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);
+    	int id = -1;
+			ResultSet rs = st.getGeneratedKeys();
+			if (rs.next()) {
+					id = rs.getInt(1);
+			} 
+			rs.close();
+			return id;
+		} catch(SQLException e){
+			System.err.println("Exception triggered during insertGetID execution!");
+			e.printStackTrace();
+		}
+		return -1;
 	}
 
 	public void updateOp(String query){
