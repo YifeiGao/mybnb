@@ -240,7 +240,7 @@ public class User {
 	public void writeComments(int choice){
 		Comments c = new Comments();
 		Booking b = new Booking();
-		if (choice == 4) {
+		if (choice == 3) {
 			b.getRecentCompletedRentalHistory(this.curr_user);
 			c.insertRateAndComments("renter", this.curr_user);
 
@@ -322,7 +322,7 @@ public class User {
 				}while (!(d_q.equalsIgnoreCase("d") || d_q.equalsIgnoreCase("q")));
 				if (d_q.equalsIgnoreCase("d")){
 					//delete future booking
-					delete_fu_b = "DELETE FORM booking WHERE listing_id =  '"+listId+"' AND start_date <= '"+date+"' AND end_date >= '"+date+"';";
+					delete_fu_b = "DELETE FORM booking WHERE list_ID =  '"+listId+"' AND start_date <= '"+date+"' AND end_date >= '"+date+"';";
 					sqlMngr.excuteSql(delete_fu_b);
 					Booking b = new Booking();
 					b.updateCancellation("host", this.curr_user);
@@ -343,18 +343,18 @@ public class User {
 		//TO DO:
 		//print the listing that the user owns
 		System.out.println("Please enter the listing ID that you want to update");
-		int listing_ID = Integer.parseInt(CommandLine.sc.nextLine());
+		int list_ID = Integer.parseInt(CommandLine.sc.nextLine());
 		//TO Do:
 		//check if the listing ID that the host typed is correct
 		System.out.println("Please enter the date that you want to change, please type in yyyy-MM-dd format");
 		String date = CommandLine.sc.nextLine();
 		//TO DO:
 		//get the status of the listing on that day, if it is booked then need to delete the booking first, if it is unavailable update to available first 
-		float price = new ListCalendar().getPrice(listing_ID, date);
-		System.out.println("According to our record, the price of the listing "+ listing_ID + " on " + date + " was " + price);
+		float price = new ListCalendar().getPrice(list_ID, date);
+		System.out.println("According to our record, the price of the listing "+ list_ID + " on " + date + " was " + price);
 		System.out.println("Please type the new price on that day");
 		float new_price = Float.parseFloat(CommandLine.sc.nextLine());
-		new ListCalendar().updatePrice(listing_ID, date, new_price);
+		new ListCalendar().updatePrice(list_ID, date, new_price);
 
 	}
 
