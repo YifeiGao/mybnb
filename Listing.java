@@ -29,6 +29,29 @@ public class Listing {
 		}*/
 		sqlMngr = CommandLine.sqlMngr;
 	}
+	public static String[] getListingColumn(){
+		return listing_column_name;
+	}
+	
+	public static String[] getListingColumnType(){
+		return listing_column_type;
+	}
+	
+	public static String getListingKey(){
+		return listing_primary_key;
+	}
+	public static String[] getAmColumn(){
+		return amenities_column_name;
+	}
+	
+	public static String[] getAmColumnType(){
+		return amenities_column_type;
+	}
+	
+	public static String getAmKey(){
+		return amenities_primary_key;
+	}
+	
 
 	public int addListing(){
 		int choice;
@@ -86,8 +109,19 @@ public class Listing {
 	}
 
 	public float getAvePrice(int l_ID){
-		float price;
-		String get_ave = "SELECT AVE(price) FROM lists_calendar WHERE (SELECT list_ID FROM listing l WHERE l. "
+		float price = -100;
+		String get_ave = "SELECT AVG(price) ave_p FROM lists_calendar WHERE (SELECT list_ID FROM listing l WHERE l. ";
+		ResultSet rs = sqlMngr.selectOp(get_ave);
+		try {
+			if(rs.next()){
+				price = rs.getFloat("ave_p");
+				rs.close();
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return price;
 	}
 
 	public boolean ownList(int list_ID, String host) throws SQLException{
