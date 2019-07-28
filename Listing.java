@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 public class Listing {
 	private static String[] listing_type = {"House", "Bed_and_breakfast", "Bungalow", "Chalet", "Guest_suite", "Hostel", "Loft", "Townhouse", "Apartment", "Boutique_hotle", "Cabin", "Cottage", "Guesthouse", "Hotel", "Resort", "Villa"};
 	private static final String[] listing_column_name = {"list_ID", "list_latitude", "list_longitude", "Country", "Province", "City", "house_number_and_Street","host_user_name", "post_code", "list_type"};
-	private static final String[] listing_column_type = { "INT NOT NULL AUTO_INCREMENT", "DECIMAL(10, 8) NOT NULL", "DECIMAL(11, 8) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL","VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL","VARCHAR(30) NOT NULL"};
+	private static final String[] listing_column_type = { "INT NOT NULL AUTO_INCREMENT", "DECIMAL(10, 8) NOT NULL", "DECIMAL(11, 8) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL","VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL","VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL"};
 	private static final String listing_primary_key = "list_ID";
 	private static final String[] listing_column_name_for_insert = { "list_latitude", "list_longitude", "Country", "Province", "City", "house_number_and_Street","host_user_name", "list_type"};
 
@@ -20,13 +20,14 @@ public class Listing {
 
 	public static SQLController sqlMngr = new SQLController();
 	public Listing(){
-		try {
+		/*try {
 			sqlMngr.connect();
 		} catch (ClassNotFoundException e) {
 			System.err.println("Esception occurs in Listin.constructor");
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
+		sqlMngr = CommandLine.sqlMngr;
 	}
 
 	public int addListing(){
