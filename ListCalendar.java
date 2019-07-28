@@ -6,29 +6,53 @@ import java.util.Date;
 
 public class ListCalendar {
 
-	private static String[] lists_calendar_name = {"date", "listing_ID", "price", "available","start_date", "last_date"};
+	private static String[] lists_calendar_name = {"date", "list_ID", "price", "available","start_date", "last_date"};
 	//available column has 3 types of value. 'a' rep available, 'b' rep booked, 'u' rep unavailable.
-	private static String[] lists_calendar_type = {"DATE NOT NULL", "INT NULL", "FLOAT NULL,", "VARCHAR(1) NULL", "DATE NOT NULL"};
-	private static String lists_calendar_primary_key = "listing_id, date";
+	private static String[] lists_calendar_type = {"DATE NOT NULL", "INT NOT NULL", "FLOAT NOT NULL,", "VARCHAR(1) NOT NULL", "DATE NOT NULL", "DATE NOT NULL" };
+	private static String lists_calendar_primary_key = "list_ID, date";
 
 	private static String[] ints = {"i"};
-	private static String[] ints_type = {"TINYINT"};
+	private static String[] ints_type = {"TINYINT(1) NOT NULL"};
+	private static String ints_primary_key = "null";
 
 	public static SQLController sqlMngr = new SQLController();
 	public ListCalendar(){
-		try {
+		/*try {
 			sqlMngr.connect();
 		} catch (ClassNotFoundException e) {
 			System.err.println("Esception occurs in ListCalendar.constructor");
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
+		sqlMngr = CommandLine.sqlMngr;
+	}
+	public static String[] getCColumn(){
+		return lists_calendar_name;
 	}
 
+	public static String[] getCColumnType(){
+		return lists_calendar_type;
+	}
+	public static String getCKey(){
+		return lists_calendar_primary_key;
+	}
+	public static String[] getIColumn(){
+		return ints;
+	}
+
+	public static String[] getIColumnType(){
+		return ints_type;
+	}
+	public static String getIKey(){
+		return ints_primary_key;
+	}
+
+
 	public static void initialInts(){
-		for (int j = 0; j <= 9 ; j++){
+		/*for (int j = 0; j <= 9 ; j++){
+
 			sqlMngr.insertOp("ints", new String[] {"i"} , new String[] {Integer.toString(j)});
-		}
+		}*/
 	}
 
 	//call this function when the host wants to add a new listing, it will open future 2 month's calendar and initial the status as 'a'(available)
@@ -40,7 +64,7 @@ public class ListCalendar {
 				+ "ORDER BY 1;";
 		sqlMngr.excuteSql(insert_date);
 		String update_other_column = "UPDATE lists_calendar"
-				+ "SET listing_id = '"+listing_ID+"',"
+				+ "SET list_ID = '"+listing_ID+"',"
 				+ "price = '"+price+"',"
 				+ "available = 'a',"
 				+ "start_date = CURDATE(),"
@@ -49,7 +73,7 @@ public class ListCalendar {
 	}
 
 	public String checkStatus(int listing_ID, String date){
-		String sql = "SELECT available FROM lists_calendar WHERE listing_id = '"+listing_ID+"' and date = '"+date+"';";
+		String sql = "SELECT available FROM lists_calendar WHERE list_ID = '"+listing_ID+"' and date = '"+date+"';";
 		String status = "";
 		try {
 			ResultSet rs = sqlMngr.selectOp(sql);
@@ -63,7 +87,7 @@ public class ListCalendar {
 	}
 
 	public boolean checkDate(int listing_ID, String date){
-		String sql  = "SELECT * FROM lists_calendar WHERE listing_id = ''"+listing_ID+" and date = '"+date+"';";
+		String sql  = "SELECT * FROM lists_calendar WHERE list_ID = ''"+listing_ID+" and date = '"+date+"';";
 		boolean exist = false;
 		try{
 			ResultSet rs = sqlMngr.selectOp(sql);
@@ -78,20 +102,20 @@ public class ListCalendar {
 	//call this function when renter deletes a future booking, set status as 'a'
 	//call this function when host wants to change the availability if the listing
 	public void updateAva(int listing_ID, String date, String status){
-		String update_ava = "UPDATE lists_calendar SET available = '"+status+"' WHERE date = '"+date+"' and listing_id = '"+listing_ID+"';";
+		String update_ava = "UPDATE lists_calendar SET available = '"+status+"' WHERE date = '"+date+"' and list_ID = '"+listing_ID+"';";
 		sqlMngr.updateOp(update_ava);
 	}
 
 	//call this function when host wants to update the listing's price of a certain day
 	public void updatePrice(int listing_ID, String date, float price){
-		String update_price = "UPDATE lists_calendar SET price = '"+price+"' WHERE date = '"+date+"' and listing_id == '"+listing_ID+"';";
+		String update_price = "UPDATE lists_calendar SET price = '"+price+"' WHERE date = '"+date+"' and list_ID == '"+listing_ID+"';";
 		sqlMngr.updateOp(update_price);
 		float new_price = this.getPrice(listing_ID, date);
 		System.out.println("Update price scuessfully, your current price of " + listing_ID +" on " + date + " is " + new_price);
 	}
 
 	public float getPrice(int listing_ID, String date){
-		String get_price ="SELECT price FROM lists_calendar WHERE listing_id = '"+listing_ID+"' and date = '"+date+"'";
+		String get_price ="SELECT price FROM lists_calendar WHERE list_ID = '"+listing_ID+"' and date = '"+date+"'";
 		float price = -1;
 		try {
 			ResultSet rs = sqlMngr.selectOp(get_price);
@@ -104,7 +128,7 @@ public class ListCalendar {
 	}
 
 	private String getLastDate(int listing_ID){
-		String get_last = "SELECT last_date FROM lists_calendar WHERE listing_id = '"+listing_ID+"';";
+		String get_last = "SELECT last_date FROM lists_calendar WHERE list_ID = '"+listing_ID+"';";
 		ResultSet rs = sqlMngr.selectOp(get_last);
 		String last_date = null;
 		try {
@@ -117,7 +141,7 @@ public class ListCalendar {
 	}
 
 	private String getStartDate(int listing_ID){
-		String get_start = "SELECT start_date FROM lists_calendar WHERE listing_id = '"+listing_ID+"';";
+		String get_start = "SELECT start_date FROM lists_calendar WHERE list_ID = '"+listing_ID+"';";
 		ResultSet rs = sqlMngr.selectOp(get_start);
 		String start_date = null;
 		try {
@@ -130,11 +154,11 @@ public class ListCalendar {
 	}
 	//this function need to be called once we connected to the database
 	public void updateCalendar(){
-		String get_listings = "SELECT listing_ID FROM listing;";
+		String get_listings = "SELECT list_ID FROM listing;";
 		ResultSet rs = sqlMngr.selectOp(get_listings);
 		try {
 			while(rs.next()){
-				this.updateListCalendar(rs.getInt("listing_ID"));
+				this.updateListCalendar(rs.getInt("list_ID"));
 			}
 		} catch (SQLException e) {
 			System.out.println("Exception occurs in Calendar.updatecalendar");
@@ -169,13 +193,13 @@ public class ListCalendar {
 		sqlMngr.excuteSql(insert_date);
 		//delete the calendar record from the table if the date is before the current date
 		String update_other_column = "UPDATE lists_calendar"
-				+ "SET listing_id = '"+listing_ID+"',"
+				+ "SET list_ID = '"+listing_ID+"',"
 				+ "price = null,"
 				+ "available = 'a',"
 				+ "start_date = CURDATE(),"
 				+ "last_date =  DATE_ADD(CURDATE(), INTERVAL 61 DAY) ;";
 		sqlMngr.excuteSql(update_other_column);	
-		String delete_befor = "DELET FORM lists_calendar WHERE listing_id = '"+listing_ID+"' and date < CURDATE();";
+		String delete_befor = "DELET FORM lists_calendar WHERE list_ID = '"+listing_ID+"' and date < CURDATE();";
 		sqlMngr.selectOp(delete_befor);
 	}
 
