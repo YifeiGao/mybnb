@@ -51,8 +51,9 @@ public class Booking {
 		sqlMngr.printRecord(resultSet);
 	}
 
+	//[updated]
 	public void getRecentCompletedRentalHistory(String user_name){
-		String query = "SELECT booking_ID, list_ID, renter_user_name, start_date, end_date FROM booking WHERE host_user_name = '"+user_name+"'"+"AND DATEDIFF(CURDATE(), end_date) <= 365;";
+		String query = "SELECT booking_ID, list_ID, renter_user_name, start_date, end_date FROM booking WHERE renter_user_name = '"+user_name+"'"+"AND DATEDIFF(CURDATE(), end_date) <= 365;";
 		ResultSet resultSet = sqlMngr.selectOp(query);
 		System.out.println("Here is your recent renting histories within a year. (NOTE: Any ongoing renting records won't be shown in this list.");
 		sqlMngr.printRecord(resultSet);
@@ -69,7 +70,7 @@ public class Booking {
 		int cancellation;
 		String start_date;
 		String end_date;
-		int listing_ID;
+		int list_ID;
 		do{
 			result = this.checkBookingId(type, user_name);
 			valid = this.checkFuture(result);
@@ -79,7 +80,7 @@ public class Booking {
 		//update the user's cancellation time
 		this.updateCancellation(type, user_name);
 		//update availability of the list
-		listing_ID = Integer.parseInt(result.get(1));
+		list_ID = Integer.parseInt(result.get(1));
 		start_date = result.get(4);
 		end_date = result.get(5);
 		System.out.println("test: start_date is " + start_date +" end date is " + end_date);
@@ -92,7 +93,7 @@ public class Booking {
 			LocalDate change_start = instant.atZone(defaultZoneId).toLocalDate();
 			for(int i = 0;i < duration; i++){
 				LocalDate date = change_start.plusDays(i);
-				new ListCalendar().updateAva(listing_ID, date.toString(), "a");
+				new ListCalendar().updateAva(list_ID, date.toString(), "a");
 			}
 		} catch (ParseException e) {
 			System.out.println("Exception occurs in Booking.deleteBooking");
