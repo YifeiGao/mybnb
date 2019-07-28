@@ -235,7 +235,7 @@ public class Listing {
 				/****** Ask user input list_ID ******/
 				boolean allow_choose_again;
 				boolean table_exist = false;	//table: curr_listing
-				boolean check_a = false; boolean check_d = false; boolean check_p = false; boolean check_f = false; 
+				boolean check_p = false; boolean check_f = false; 
 				do {// DO WHILE verify user's choice //
 					valid_choice = true;
 					allow_choose_again = false;
@@ -244,8 +244,7 @@ public class Listing {
 					System.out.println("Please enter c if you want to checkout a listing, enter e if you want to re-enter the address, or enter r to select another search method:");
 					choice = CommandLine.sc.nextLine();
 					// Operate query on the newly created table address_listing
-					if (choice.equalsIgnoreCase("a") && !check_a) {
-						check_a = true;
+					if (choice.equalsIgnoreCase("a")) {
 						allow_choose_again = true;
 						if (table_exist) {
 							query = "CREATE temp AS (SELECT * FROM curr_listing ORDER BY total_price);";
@@ -255,8 +254,7 @@ public class Listing {
 							updateTempTable(query, table_exist);
 							table_exist = true;
 						}
-					} else if (choice.equalsIgnoreCase("d") && !check_d) {
-						check_d = true;
+					} else if (choice.equalsIgnoreCase("d")) {
 						allow_choose_again = true;
 						if (table_exist) {
 							query = "CREATE temp AS (SELECT * FROM curr_listing ORDER BY total_price DESC);";
@@ -334,7 +332,7 @@ public class Listing {
 						} while(!valid_amenities);
 					} else if (choice.equalsIgnoreCase("s")) {
 						allow_choose_again = true;
-						check_a = false; check_d = false; check_f = false; check_p = false;
+						check_f = false; check_p = false;
 						if (table_exist) {
 							sqlMngr.deleteOp("DROP TABLE curr_listing");
 							table_exist = false;
@@ -461,7 +459,7 @@ public class Listing {
 				/****** Ask user input list_ID ******/
 				boolean allow_choose_again;
 				boolean table_exist = false;	//table: curr_listing
-				boolean check_a = false; boolean check_d = false; boolean check_p = false; boolean check_f = false;
+				boolean check_p = false; boolean check_f = false;
 				do {// DO WHILE verify user's choice //
 					valid_choice = true;
 					allow_choose_again = false;
@@ -471,8 +469,7 @@ public class Listing {
 					choice = CommandLine.sc.nextLine();
 
 					// Operate query on the newly created table address_listing
-					if (choice.equalsIgnoreCase("a") && !check_a) {
-						check_a = true;
+					if (choice.equalsIgnoreCase("a")) {
 						allow_choose_again = true;
 						if (table_exist) {
 							query = "CREATE temp AS (SELECT * FROM curr_listing ORDER BY total_price);";
@@ -481,8 +478,7 @@ public class Listing {
 							query = "CREATE curr_listing AS (SELECT * FROM address_listing ORDER BY total_price);";
 							updateTempTable(query, table_exist);
 							table_exist = true;
-						}} else if (choice.equalsIgnoreCase("d") && !check_d) {
-						check_d = true;
+						}} else if (choice.equalsIgnoreCase("d")) {
 						allow_choose_again = true;
 						if (table_exist) {
 							query = "CREATE temp AS (SELECT * FROM curr_listing ORDER BY total_price DESC);";
@@ -560,7 +556,7 @@ public class Listing {
 						} while(!valid_amenities);
 					} else if (choice.equalsIgnoreCase("s")) {
 						allow_choose_again = true;
-						check_a = false; check_d = false; check_f = false; check_p = false;
+						check_f = false; check_p = false;
 						if (table_exist) {
 							sqlMngr.deleteOp("DROP TABLE curr_listing");
 							table_exist = false;
@@ -694,17 +690,17 @@ public class Listing {
 					/****** Ask user input list_ID ******/
 					boolean allow_choose_again;
 					boolean table_exist = false;	//table: curr_listing
-					boolean check_a = false; boolean check_d = false; boolean check_p = false; boolean check_f = false; 
+					boolean check_p = false; boolean check_f = false;
 					do {// DO WHILE verify user's choice //
 						valid_choice = true;
 						allow_choose_again = false;
 						System.out.println("You can sort the list by price by entering a: ascending, or d: descending.");
+						System.out.println("You can also sort the list by distance by entering ad: ascending, or dd: descending.");
 						System.out.println("Please enter p if you want to filter by price range, enter f if you want to filter by amenities, enter s if you want to re-set filtering");
 						System.out.println("Please enter c if you want to checkout a listing, enter e if you want to re-enter the coordinate and distance, or enter r to select another search method:");
 						choice = CommandLine.sc.nextLine();
 						// Operate query on the newly created table address_listing
-						if (choice.equalsIgnoreCase("a") && !check_a) {
-							check_a = true;
+						if (choice.equalsIgnoreCase("a")) {
 							allow_choose_again = true;
 							if (table_exist) {
 								query = "CREATE temp AS (SELECT * FROM curr_listing ORDER BY total_price);";
@@ -714,14 +710,33 @@ public class Listing {
 								updateTempTable(query, table_exist);
 								table_exist = true;
 							}
-						} else if (choice.equalsIgnoreCase("d") && !check_d) {
-							check_d = true;
+						} else if (choice.equalsIgnoreCase("d")) {
 							allow_choose_again = true;
 							if (table_exist) {
 								query = "CREATE temp AS (SELECT * FROM curr_listing ORDER BY total_price DESC);";
 								updateTempTable(query, table_exist);
 							} else {
 								query = "CREATE curr_listing AS (SELECT * FROM address_listing ORDER BY total_price DESC);";
+								updateTempTable(query, table_exist);
+								table_exist = true;
+							}
+						} else if (choice.equalsIgnoreCase("ad")) {
+							allow_choose_again = true;
+							if (table_exist) {
+								query = "CREATE temp AS (SELECT * FROM curr_listing ORDER BY distance);";
+								updateTempTable(query, table_exist);
+							} else {
+								query = "CREATE curr_listing AS (SELECT * FROM address_listing ORDER BY distance);";
+								updateTempTable(query, table_exist);
+								table_exist = true;
+							}
+						} else if (choice.equalsIgnoreCase("dd")) {
+							allow_choose_again = true;
+							if (table_exist) {
+								query = "CREATE temp AS (SELECT * FROM curr_listing ORDER BY distance DESC);";
+								updateTempTable(query, table_exist);
+							} else {
+								query = "CREATE curr_listing AS (SELECT * FROM address_listing ORDER BY distance DESC);";
 								updateTempTable(query, table_exist);
 								table_exist = true;
 							}
@@ -793,7 +808,7 @@ public class Listing {
 							} while(!valid_amenities);
 						} else if (choice.equalsIgnoreCase("s")) {
 							allow_choose_again = true;
-							check_a = false; check_d = false; check_f = false; check_p = false;
+							check_f = false; check_p = false;
 							if (table_exist) {
 								sqlMngr.deleteOp("DROP TABLE curr_listing");
 								table_exist = false;
