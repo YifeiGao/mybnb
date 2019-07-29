@@ -10,9 +10,9 @@ import java.util.concurrent.TimeUnit;
 public class Listing {
 	private static String[] listing_type = {"House", "Bed_and_breakfast", "Bungalow", "Chalet", "Guest_suite", "Hostel", "Loft", "Townhouse", "Apartment", "Boutique_hotle", "Cabin", "Cottage", "Guesthouse", "Hotel", "Resort", "Villa"};
 	private static final String[] listing_column_name = {"list_ID", "list_latitude", "list_longitude", "Country", "Province", "City", "house_number_and_Street","host_user_name", "post_code", "list_type"};
-	private static final String[] listing_column_type = { "INT NOT NULL AUTO_INCREMENT", "DECIMAL(10, 8) NOT NULL", "DECIMAL(11, 8) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL","VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL","VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL"};
+	private static final String[] listing_column_type = { "INT NOT NULL AUTO_INCREMENT", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL","VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL","VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL"};
 	private static final String listing_primary_key = "list_ID";
-	private static final String[] listing_column_name_for_insert = { "list_latitude", "list_longitude", "Country", "Province", "City", "house_number_and_Street","host_user_name", "list_type"};
+	private static final String[] listing_column_name_for_insert = { "list_latitude", "list_longitude", "Country", "Province", "City", "house_number_and_Street","post_code", "list_type","host_user_name"};
 
 	private static final String[] amenities_column_name = {"list_ID", "kitchen","heating","washer", "wifi", "indoor_fireplace", "iron", "Laptop-friendly_workspace", "crib", "self_check_in", "carbon_monoxide_detector", "shampoo", "air_conditioning", "dryer", "breakfast", "hangers", "hair_dryer", "TV", "hight_chair", "smoke_detector", "private_bathroom"};
 	private static final String[] amenities_column_type = {"INT NOT NULL", "TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)"};
@@ -53,7 +53,7 @@ public class Listing {
 	}
 	
 
-	public int addListing(){
+	public int addListing(String host_user){
 		int choice;
 		int list_ID = -100000;
 		ArrayList<String> a = new ArrayList<String>(listing_column_name.length);
@@ -63,26 +63,29 @@ public class Listing {
 		do{
 			this.listTypeMenu();
 			choice = Integer.parseInt(CommandLine.sc.nextLine());
-			check = CommandLine.checkInRange(choice, 0, column_values.length - 1);
+			check = CommandLine.checkInRange(choice, 0, listing_type.length - 1);
 			if(!check){
 				System.out.println("Please choose a type that provided");
 			}
 		}while(!check);
 		String type = listing_type[choice];
-		a = CommandLine.getInfo(listing_column_name, 1, 8);
+		a = CommandLine.getInfo(listing_column_name_for_insert, 0, 6);
+		System.out.println("listing type: "+ type);
 		a.add(type);
+		a.add(host_user);
 		column_values = a.toArray(new String[0]);;
-		sqlMngr.insertOp("listing", listing_column_name, column_values);
-		String get_list_ID = "SELECT LAST_INSERT_ID() ;";
-		ResultSet rs = sqlMngr.excuteSql(get_list_ID);
+		sqlMngr.insertOp("listing", listing_column_name_for_insert, column_values, true);
+		
 		try{
-			rs.absolute(1);
-			list_ID = rs.getInt("list_ID");
+			ResultSet rs = sqlMngr.st.getGeneratedKeys();
+			rs.next();
+			list_ID = rs.getInt(1);
+			rs.close();
 		}catch(SQLException e){
 			System.err.println("Exception occurs in Listing.addLising");
 			e.printStackTrace();
 		}
-		sqlMngr.insertOp("amenities",amenities_column_name, this.getAmenities(list_ID));
+		sqlMngr.insertOp("amenities",amenities_column_name, this.getAmenities(list_ID), false);
 		System.out.println("Listing added successfully, the listing ID of the listing is "+ list_ID);
 		return list_ID;
 
