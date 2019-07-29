@@ -16,7 +16,7 @@ public class SQLController {
 	//Object which communicates with the SQL backend delivering to it the
 	//desired query from our application and returning the results of this
 	//execution the same way that are received from the SQL backend.
-	private Statement st = null;
+	public Statement st = null;
 	private Connection conn = null;
 
 	// Initialize current instance of this class.
@@ -178,7 +178,7 @@ public class SQLController {
 
 	//Controls the execution of an insert query.
 	//Functionality: "1. Insert a record."
-	public int insertOp(String table, String[] column, String[] values) {
+	public int insertOp(String table, String[] column, String[] values, boolean return_generated_keys) {
 		int rowsAff = 0;
 		int counter = 0;
 		String query = "";
@@ -199,7 +199,12 @@ public class SQLController {
 		System.out.println("");
 		int rows = 0; 
 		try {
+			if(!return_generated_keys){
 			rows = st.executeUpdate(query);
+			}
+			else{
+				rows = st.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);
+			}
 		} catch (SQLException e) {
 			System.err.println("Exception triggered during Insert execution!");
 			e.printStackTrace();
