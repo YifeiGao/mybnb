@@ -10,7 +10,7 @@ import java.util.ArrayList;
 public class SQLController {
 
 	private static final String dbClassName = "com.mysql.jdbc.Driver";
-	private static final String CONNECTION = "jdbc:mysql://127.0.0.1/test1";
+	private static final String CONNECTION = "jdbc:mysql://127.0.0.1/mybnb";
 	//Object that establishes and keeps the state of our application's
 	//connection with the MySQL backend.
 	//Object which communicates with the SQL backend delivering to it the
@@ -54,6 +54,7 @@ public class SQLController {
 			conn = null;
 		}
 	}
+
 
 	public void initialize(){
 		this.createTable("users", User.getUserColumn(), User.getUserColumnType(), User.getUserKey());
