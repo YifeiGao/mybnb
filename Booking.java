@@ -61,7 +61,7 @@ public class Booking {
 	}
 
 	public void getRecentCompletedRentalHistory(String user_name){
-		String query = "SELECT booking_ID, list_ID, host_user_name, start_date, end_date FROM booking WHERE renter_user_name = '"+user_name+"'"+"AND DATEDIFF(CURDATE(), end_date) <= 365 AND DATEDIFF(CURDATE(), end_date) >= 0;";
+		String query = "SELECT booking_ID, list_ID, renter_user_name, start_date, end_date FROM booking WHERE host_user_name = '"+user_name+"'"+"AND DATEDIFF(CURDATE(), end_date) <= 365;";
 		ResultSet resultSet = sqlMngr.selectOp(query);
 		System.out.println("Here is your recent renting histories within a year. (NOTE: Any ongoing renting records won't be shown in this list.");
 		sqlMngr.printRecord(resultSet);
