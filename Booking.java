@@ -20,13 +20,7 @@ public class Booking {
 
 	public static SQLController sqlMngr = new SQLController();
 	public Booking(){
-		/*try {
-			sqlMngr.connect();
-		} catch (ClassNotFoundException e) {
-			System.err.println("Esception occurs in Booking.constructor");
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
+		
 		sqlMngr = CommandLine.sqlMngr;
 	}
 
@@ -98,7 +92,6 @@ public class Booking {
 
 		start_date = result.get(4);
 		end_date = result.get(5);
-		System.out.println("test: start_date is " + start_date +" end date is " + end_date);
 		try {
 			Date start =  new SimpleDateFormat("yyyy-MM-dd").parse(start_date);
 			Date end = new SimpleDateFormat("yyyy-MM-dd").parse(end_date);
