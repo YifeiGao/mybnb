@@ -46,6 +46,7 @@ public class CommandLine {
 		sqlMngr.initialize();
 		if(sc != null && sqlMngr != null){
 			User u = new User();
+			Listing l = new Listing();
 			int choice = -1;
 			String input = "";
 			do{
@@ -53,7 +54,9 @@ public class CommandLine {
 				log_in = u.userStart();
 				boolean con = true;
 				if(log_in){
+
 					do{
+						boolean is_host = l.checkHost(u.getCurrU());
 						u.userMenu();
 						input = sc.nextLine();
 						try{
@@ -79,42 +82,73 @@ public class CommandLine {
 								con = u.hostNotice();
 								if(con){
 									u.addListing();
+
 								}
 								break;
 							case 6:
 								con = u.hostNotice();
 								if(con){
-									u.getHostListings();
+									if(is_host){
+										u.getHostListings();
+									}
+									else{
+										System.out.println("Sorry you are not a user, please select the orther operations");
+									}
 								}
 								break;
 							case 7:
 								con = u.hostNotice();
 								if(con){
-									u.printHistory(choice);
+									if(is_host){
+										u.printHistory(choice);
+									}
+									else{
+										System.out.println("Sorry you are not a user, please select the orther operations");
+									}
 								}
 								break;
 							case 8:
 								con = u.hostNotice();
 								if(con){
-									u.deleteFutureBooking(choice);
+									if(is_host){
+										u.deleteFutureBooking(choice);
+									}
+									else{
+										System.out.println("Sorry you are not a user, please select the orther operations");
+									}
 								}
 								break;
 							case 9:
 								con = u.hostNotice();
 								if(con){
-									u.updateAvai();
+									if(is_host){
+										u.updateAvai();
+									}
+									else{
+										System.out.println("Sorry you are not a user, please select the orther operations");
+									}
 								}
 								break;
 							case 10:
 								con = u.hostNotice();
 								if(con){
-									u.writeComments(choice);
+									if(is_host){
+										u.writeComments(choice);
+									}
+									else{
+										System.out.println("Sorry you are not a user, please select the orther operations");
+									}
 								}
 								break;
 							case 11:
 								con = u.hostNotice();
 								if(con){
-									u.updatePrice();
+									if(is_host){
+										u.updatePrice();
+									}
+									else{
+										System.out.println("Sorry you are not a user, please select the orther operations");
+									}
 								}
 								break;
 							default:
