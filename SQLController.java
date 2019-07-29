@@ -286,6 +286,7 @@ public class SQLController {
 		}
 	}
 
+
 	//print the records that stores in the resultset rs,
 	//TO DO:
 	// need to print in table format
@@ -294,13 +295,13 @@ public class SQLController {
 			ResultSetMetaData rsmd = rs.getMetaData();
 			int columnsNumber = rsmd.getColumnCount();
 			for(int j = 1; j <= columnsNumber; j++){
-				if (j > 1) System.out.print("     ");
+				if (j > 1) System.out.print("  /   ");
 				System.out.print(rsmd.getColumnName(j));
 			}
-			System.out.println();
+			System.out.println("");
 			while (rs.next()) {
 				for (int i = 1; i <= columnsNumber; i++) {
-					if (i > 1) System.out.print("             ");
+					if (i > 1) System.out.print("  /  ");
 					String columnValue = rs.getString(i);
 					System.out.print(columnValue);
 				}
@@ -311,6 +312,7 @@ public class SQLController {
 			e.printStackTrace();
 		}
 	}
+
 
 	public ResultSet excuteSql(String sql){
 		ResultSet rs = null;
@@ -323,15 +325,14 @@ public class SQLController {
 		return rs;
 
 	}
+	
 	//Controls the execution of an insert query, and return the auto incremented id.
 	public int insertGetID(String query) {
 		try{
 			st.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);
 			int id = -1;
 			ResultSet rs = st.getGeneratedKeys();
-			if (rs.next()) {
-				id = rs.getInt(1);
-			} 
+			id = rs.getInt(1);
 			rs.close();
 			return id;
 		} catch(SQLException e){
@@ -342,13 +343,21 @@ public class SQLController {
 	}
 	public void createTempTable(String query){
 		try{
-			st.executeQuery(query);
+			st.executeUpdate(query);
 		} catch(SQLException e){
 			System.err.println("Exception triggered during create table operation execution!");
 			e.printStackTrace();
 		}
 	}
 
+	public void dropTempTable(String query){
+		try{
+			st.executeUpdate(query);
+		} catch(SQLException e){
+			System.err.println("Exception triggered during drop table operation execution!");
+			e.printStackTrace();
+		}
+	}
 
 
 
