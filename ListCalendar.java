@@ -42,12 +42,7 @@ public class ListCalendar {
 	}
 
 
-	public static void initialInts(){
-		/*for (int j = 0; j <= 9 ; j++){
 
-			sqlMngr.insertOp("ints", new String[] {"i"} , new String[] {Integer.toString(j)});
-		}*/
-	}
 
 	//call this function when the host wants to add a new listing, it will open future 2 month's calendar and initial the status as 'a'(available)
 	public void insertListCalendar(int listing_ID, float price){
