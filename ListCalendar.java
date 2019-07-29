@@ -8,7 +8,7 @@ public class ListCalendar {
 
 	private static String[] lists_calendar_name = {"date", "list_ID", "price", "available","start_date", "last_date"};
 	//available column has 3 types of value. 'a' rep available, 'b' rep booked, 'u' rep unavailable.
-	private static String[] lists_calendar_type = {"DATE NOT NULL", "INT NOT NULL", "FLOAT NOT NULL", "VARCHAR(1) NOT NULL", "DATE NOT NULL", "DATE NOT NULL" };
+	private static String[] lists_calendar_type = {"DATE NOT NULL", "INT NOT NULL", "FLOAT NULL", "VARCHAR(1) NULL", "DATE NULL", "DATE NULL" };
 	private static String lists_calendar_primary_key = "list_ID, date";
 
 	private static String[] ints = {"i"};
@@ -57,19 +57,30 @@ public class ListCalendar {
 
 	//call this function when the host wants to add a new listing, it will open future 2 month's calendar and initial the status as 'a'(available)
 	public void insertListCalendar(int listing_ID, float price){
-		String insert_date = "INSERT INTO lists_calendar (date)"
-				+ "SELECT DATE(CURDATE()) + INTERVAL a.i*10000 + b.i*1000 + c.i*100 + d.i*10 + e.i DAY"
-				+ "FROM ints a JOIN ints b JOIN ints c JOIN ints d JOIN ints e"
-				+ "WHERE(a.i*10000 + b.i*1000 + c.i*100 + d.i*10 + e.i) <= 61"
-				+ "ORDER BY 1;";
-		sqlMngr.excuteSql(insert_date);
-		String update_other_column = "UPDATE lists_calendar"
-				+ "SET list_ID = '"+listing_ID+"',"
-				+ "price = '"+price+"',"
-				+ "available = 'a',"
+		//sqlMngr.createTable("calendar", new String[] {"date"}, new String[] {"DATE NOT NULL"}, "date");
+
+		try {
+			String insert_date;
+			String sql = "SELECT DATE(CURDATE()) + INTERVAL a.i*10000 + b.i*1000 + c.i*100 + d.i*10 + e.i DAY d FROM ints a JOIN ints b JOIN ints c JOIN ints d JOIN ints e WHERE (a.i*10000 + b.i*1000 + c.i*100 + d.i*10 + e.i) <= 61 ORDER BY 1;"; 
+			ResultSet t = sqlMngr.selectOp(sql);
+			while(t.next()){
+				String dt = t.getString(1);
+				insert_date = "INSERT INTO lists_calendar (date, list_ID) VALUES ('"+dt+"', "+listing_ID+");"; 
+				sqlMngr.conn.createStatement().executeUpdate(insert_date);
+			}
+			t.close();
+		} catch (SQLException e) {
+			System.err.println("Exception occurs in ListCalendar.insertlistCalendar");
+			e.printStackTrace();
+		}
+
+
+		String update_other_column = "UPDATE lists_calendar "
+				+ "SET price = "+price+", "
+				+ "available = 'a', "
 				+ "start_date = CURDATE(),"
-				+ "last_date =  DATE_ADD(CURDATE(), INTERVAL 61 DAY) ;";
-		sqlMngr.excuteSql(update_other_column);	
+				+ "last_date = DATE_ADD(CURDATE(), INTERVAL 61 DAY);";
+		sqlMngr.updateOp(update_other_column);	
 	}
 
 	public String checkStatus(int listing_ID, String date){
