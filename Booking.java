@@ -29,11 +29,11 @@ public class Booking {
 		}*/
 		sqlMngr = CommandLine.sqlMngr;
 	}
-	
+
 	public static String[] getBookingColumn(){
 		return booking_column_name;
 	}
-	
+
 	public static String[] getBookingColumnType(){
 		return booking_column_type;
 	}
@@ -41,8 +41,8 @@ public class Booking {
 		return booking_primary_key;
 	}
 
-	
-	
+
+
 
 	public void getHostHistory(String user_name){
 		String query = "SELECT booking_ID, list_ID, renter_user_name, start_date, end_date FROM booking where host_user_name = '"+user_name+"';";
@@ -182,7 +182,7 @@ public class Booking {
 			cancellation += 1;
 			update_sql = "UPDATE users SET renter_cancellation = '"+cancellation+"' WHERE user_name = " + user_name + ";";
 		}
-		
+
 		sqlMngr.updateOp(update_sql);
 	}
 
