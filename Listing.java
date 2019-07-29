@@ -463,6 +463,11 @@ public class Listing {
 		} while(re_enter);// DO WHILE END enter address //
 		return terminate;
 	}
+	public boolean checkHost(String user_name){
+		boolean is_host;
+		is_host = sqlMngr.checkExist("list_ID", new String[] {"host_user_name"}, new String[] {user_name}, "listing");
+		return is_host;
+	}
 
 	private boolean getListingByPostCode(String start_date, String end_date, long day_lengths, String username) {
 		boolean terminate = false;
