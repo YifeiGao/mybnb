@@ -148,7 +148,7 @@ public class CommandLine {
 	 * @return a string array that stores the value of columns
 	 */
 	public static ArrayList<String> getInfo(String[] column, int start_c, int end_c){
-		ArrayList<String> values = new ArrayList<String>(column.length);
+		ArrayList<String> values = new ArrayList<String>();
 		for (int i = start_c; i <= end_c; i ++){
 			System.out.println("Please type the " +  column[i] + " below");
 			values.add(i, CommandLine.sc.nextLine());
@@ -159,11 +159,9 @@ public class CommandLine {
 
 
 
-
-
 	public static boolean checkInRange(int input, int min, int max){
 		boolean check;
-		check = input >= min || input <= max;
+		check = input >= min & input <= max;
 		return check;
 	}
 
