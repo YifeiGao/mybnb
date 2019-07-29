@@ -132,7 +132,18 @@ public class SQLController {
 					sql = sql.concat(column_type[column_type.length - 1]+ "); ");
 				}
 				st.executeUpdate(sql);
-
+				if(table.equals("ints")){
+					this.insertOp("ints", new String[] {"i"}, new String[]{Integer.toString(0)}, false);
+					this.insertOp("ints", new String[] {"i"}, new String[]{Integer.toString(1)}, false);
+					this.insertOp("ints", new String[] {"i"}, new String[]{Integer.toString(2)}, false);
+					this.insertOp("ints", new String[] {"i"}, new String[]{Integer.toString(3)}, false);
+					this.insertOp("ints", new String[] {"i"}, new String[]{Integer.toString(4)}, false);
+					this.insertOp("ints", new String[] {"i"}, new String[]{Integer.toString(5)}, false);
+					this.insertOp("ints", new String[] {"i"}, new String[]{Integer.toString(6)}, false);
+					this.insertOp("ints", new String[] {"i"}, new String[]{Integer.toString(7)}, false);
+					this.insertOp("ints", new String[] {"i"}, new String[]{Integer.toString(8)}, false);
+					this.insertOp("ints", new String[] {"i"}, new String[]{Integer.toString(9)}, false);
+				}
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -258,7 +269,7 @@ public class SQLController {
 	public void deleteOperation(String table, String where_condition){
 		System.out.println(table);
 		String query = "";
-		query = "DELETE FROM" + table + "WHERE ";
+		query = "DELETE FROM " + table + " WHERE ";
 		query = query.concat(where_condition);
 		query = query.concat(";");
 		System.out.println(query);
@@ -268,7 +279,7 @@ public class SQLController {
 
 	public void deleteOp(String query){
 		try{
-			st.executeQuery(query);
+			st.executeUpdate(query);
 		} catch(SQLException e){
 			System.err.println("Exception triggered during Delete execution!");
 			e.printStackTrace();
