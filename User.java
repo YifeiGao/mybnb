@@ -8,7 +8,7 @@ import java.util.Arrays;
 public class User {
 
 	private static final String[] user_column_name = {"name", "password", "address", "birth", "occup", "SIN", "user_name","host_cancellation", "renter_cancellation"};
-	private static final String[] user_column_type = {"VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "V NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "INT DEFAULT 0", "INT DEFAULT 0"};
+	private static final String[] user_column_type = {"VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "INT DEFAULT 0", "INT DEFAULT 0"};
 	private static final String user_primary_key = "user_name";
 
 	private String curr_user;
@@ -371,9 +371,7 @@ public class User {
 		boolean check_own;
 		int list_ID;
 		System.out.println("Following are the listings that you own");
-		//TO DO:
-		//print the listing that the user owns
-		//this.getHostListings();
+		this.getHostListings();
 		do{
 			System.out.println("Please enter the listing ID that you want to update");
 			list_ID = Integer.parseInt(CommandLine.sc.nextLine());
