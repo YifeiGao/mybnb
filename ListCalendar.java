@@ -103,14 +103,14 @@ public class ListCalendar {
 		boolean exist;
 		ResultSet rs;
 		try{
-			 rs = sqlMngr.selectOp(sql);
-			 if(rs.next()){
-				 exist = true;
-			 }
-			 else{
-				 exist = false;
-			 }
-			 rs.close();
+			rs = sqlMngr.selectOp(sql);
+			if(rs.next()){
+				exist = true;
+			}
+			else{
+				exist = false;
+			}
+			rs.close();
 		}catch(SQLException e){
 			System.err.println("Exception occurs in Calendar.checkDate");
 			e.printStackTrace();
