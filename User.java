@@ -7,8 +7,8 @@ import java.util.Arrays;
 
 public class User {
 
-	private static final String[] user_column_name = {"name", "password", "address", "birth", "occup", "SIN", "user_name","host_canclellation", "renter_canclellation"};
-	private static final String[] user_column_type = {"VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "DATE NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "INT DEFAULT 0", "INT DEFAULT 0"};
+	private static final String[] user_column_name = {"name", "password", "address", "birth", "occup", "SIN", "user_name","host_cancellation", "renter_cancellation"};
+	private static final String[] user_column_type = {"VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "V NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "INT DEFAULT 0", "INT DEFAULT 0"};
 	private static final String user_primary_key = "user_name";
 
 	private String curr_user;
@@ -28,6 +28,9 @@ public class User {
 
 	public static String getUserKey(){
 		return user_primary_key;
+	}
+	public String getCurrU(){
+		return curr_user;
 	}
 	/**
 	 * function will be operate after connected successfully, it handle user's login and register
@@ -381,8 +384,6 @@ public class User {
 		}while(!check_own);
 		System.out.println("Please enter the date that you want to change, please type in yyyy-MM-dd format");
 		String date = CommandLine.sc.nextLine();
-		//TO DO:
-		//get the status of the listing on that day, if it is booked then need to delete the booking first, if it is unavailable update to available first 
 		status = lc.checkStatus(list_ID, date);
 		if(status.equalsIgnoreCase("b")){
 			System.out.println("The list is booked on " + date + " please delete the booking first. You will be sent to the user operation menu");
