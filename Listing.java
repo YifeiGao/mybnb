@@ -14,8 +14,8 @@ public class Listing {
 	private static final String listing_primary_key = "list_ID";
 	private static final String[] listing_column_name_for_insert = { "list_latitude", "list_longitude", "Country", "Province", "City", "house_number_and_Street","post_code", "list_type","host_user_name"};
 
-	private static final String[] amenities_column_name = {"list_ID", "kitchen","heating","washer", "wifi", "indoor_fireplace", "iron", "Laptop-friendly_workspace", "crib", "self_check_in", "carbon_monoxide_detector", "shampoo", "air_conditioning", "dryer", "breakfast", "hangers", "hair_dryer", "TV", "hight_chair", "smoke_detector", "private_bathroom"};
-	private static final String[] amenities_column_type = {"INT NOT NULL", "TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)"};
+	private static final String[] amenities_column_name = {"list_ID", "kitchen","heating","washer", "wifi", "indoor_fireplace", "iron", "Laptopfriendly_workspace", "crib", "self_check_in", "carbon_monoxide_detector", "shampoo", "air_conditioning", "dryer", "breakfast", "hangers", "hair_dryer", "TV", "hight_chair", "smoke_detector", "private_bathroom"};
+	private static final String[] amenities_column_type = {"INT NOT NULL", "TINYINT(1) NOT NULL","TINYINT(1) NOT NULL","TINYINT(1) NOT NULL","TINYINT(1) NOT NULL","TINYINT(1) NOT NULL","TINYINT(1) NOT NULL","TINYINT(1) NOT NULL","TINYINT(1) NOT NULL","TINYINT(1) NOT NULL","TINYINT(1) NOT NULL","TINYINT(1) NOT NULL","TINYINT(1) NOT NULL","TINYINT(1) NOT NULL","TINYINT(1) NOT NULL","TINYINT(1) NOT NULL","TINYINT(1) NOT NULL","TINYINT(1) NOT NULL","TINYINT(1) NOT NULL","TINYINT(1) NOT NULL","TINYINT(1) NOT NULL"};
 	private static final String amenities_primary_key = "list_ID";
 
 	public static SQLController sqlMngr = new SQLController();
@@ -32,26 +32,26 @@ public class Listing {
 	public static String[] getListingColumn(){
 		return listing_column_name;
 	}
-	
+
 	public static String[] getListingColumnType(){
 		return listing_column_type;
 	}
-	
+
 	public static String getListingKey(){
 		return listing_primary_key;
 	}
 	public static String[] getAmColumn(){
 		return amenities_column_name;
 	}
-	
+
 	public static String[] getAmColumnType(){
 		return amenities_column_type;
 	}
-	
+
 	public static String getAmKey(){
 		return amenities_primary_key;
 	}
-	
+
 
 	public int addListing(String host_user){
 		int choice;
@@ -75,12 +75,12 @@ public class Listing {
 		a.add(host_user);
 		column_values = a.toArray(new String[0]);;
 		sqlMngr.insertOp("listing", listing_column_name_for_insert, column_values, true);
-		
+
 		try{
 			ResultSet rs = sqlMngr.st.getGeneratedKeys();
 			rs.next();
 			list_ID = rs.getInt(1);
-			rs.close();
+			//rs.close();
 		}catch(SQLException e){
 			System.err.println("Exception occurs in Listing.addLising");
 			e.printStackTrace();
@@ -100,7 +100,7 @@ public class Listing {
 			do{
 				System.out.println("Do you have " + amenities_column_name[i] + " in your listing? (T/F)");
 				t_or_f =  CommandLine.sc.nextLine();
-			}while(! (t_or_f.equalsIgnoreCase("t") ||t_or_f.equalsIgnoreCase("f")));
+			}while(! (t_or_f.equalsIgnoreCase("t") || t_or_f.equalsIgnoreCase("f")));
 			if(t_or_f.equalsIgnoreCase("t")){
 				amenities[i] = Integer.toString(1);
 			}
@@ -113,7 +113,24 @@ public class Listing {
 
 	public float getAvePrice(int l_ID){
 		float price = -100;
-		String get_ave = "SELECT AVG(price) ave_p FROM lists_calendar WHERE (SELECT list_ID FROM listing l WHERE l. ";
+		String get_l_info = "SELECT Country, Province, City FROM listing WHERE list_ID = '"+l_ID+"';";
+		String country = "";
+		String province = "";
+		String city = "";
+		ResultSet info = sqlMngr.selectOp(get_l_info);
+		try {
+			if(info.next()){
+				country = info.getString("Country");
+				province = info.getString("Province");
+				city = info.getString("City");
+				info.close();
+			}
+		} catch (SQLException e1) {
+			System.out.println("Exception occurs in Listing.getAvP 1");
+			e1.printStackTrace();
+		}
+		String get_ave = "SELECT AVG(price) ave_p FROM (SELECT list_ID FROM listing WHERE Country = '"+country+"' AND Province = '"+province+"' AND City = '"+city+"') t1 INNER JOIN lists_calendar t2 WHERE t1.list_ID = t2.list_ID";
+		System.out.println("get_ave price sql: "+ get_ave);
 		ResultSet rs = sqlMngr.selectOp(get_ave);
 		try {
 			if(rs.next()){
@@ -121,7 +138,7 @@ public class Listing {
 				rs.close();
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+			System.out.println("Exception occurs in Listing.getAvP 2");
 			e.printStackTrace();
 		}
 		return price;
@@ -386,8 +403,8 @@ public class Listing {
 						break;
 					} if (choice.equalsIgnoreCase("r")) {
 						if (table_exist) {
-						sqlMngr.deleteOp("DROP TABLE IF EXISTS curr_listing");
-						table_exist = false;							
+							sqlMngr.deleteOp("DROP TABLE IF EXISTS curr_listing");
+							table_exist = false;							
 						}
 						sqlMngr.deleteOp("DROP TABLE address_listing");
 						terminate = true;
@@ -422,7 +439,7 @@ public class Listing {
 						/*** INSERT BOOKING ***/
 						// "list_ID", "host_user_name", "renter_user_name", "start_date", "end_date"
 						// values[0], values[1], username, start_date, end_date
-					
+
 						//String column_names[] = {"list_ID", "host_user_name", "renter_user_name", "start_date", "end_date"};
 						//String column_values[] = {values.get(0), values.get(1), username, start_date, end_date};
 						//sqlMngr.insertOp("booking", column_names, column_values);
@@ -517,154 +534,154 @@ public class Listing {
 							updateTempTable(query, table_exist);
 							table_exist = true;
 						}} else if (choice.equalsIgnoreCase("d")) {
-						allow_choose_again = true;
-						if (table_exist) {
-							query = "CREATE temp AS (SELECT * FROM curr_listing ORDER BY total_price DESC);";
-							updateTempTable(query, table_exist);
-						} else {
-							query = "CREATE curr_listing AS (SELECT * FROM address_listing ORDER BY total_price DESC);";
-							updateTempTable(query, table_exist);
-							table_exist = true;
-						}
-					} else if (choice.equalsIgnoreCase("p") && !check_p) {
-						check_p = true;
-						allow_choose_again = true;
-						boolean valid_price;
-						do {
-							valid_price = true;
-							System.out.println("Please set the lowest price:");
-							String price_low = CommandLine.sc.nextLine();
-							System.out.println("Please set the highest price:");
-							String price_high = CommandLine.sc.nextLine();
-							if (price_low.compareTo(price_high) > 0) {
-								valid_price = false;
-								System.out.println("Please enter a valid price range");
-								continue;
-							}
+							allow_choose_again = true;
 							if (table_exist) {
-								query = "CREATE temp AS (SELECT * FROM curr_listing WHERE totoal_price >= '" + price_low + "' AND total_price <= '" + price_high + "');";
+								query = "CREATE temp AS (SELECT * FROM curr_listing ORDER BY total_price DESC);";
 								updateTempTable(query, table_exist);
 							} else {
-								query = "CREATE curr_listing AS (SELECT * FROM address_listing WHERE totoal_price >= '" + price_low + "' AND total_price <= '" + price_high + "');";
+								query = "CREATE curr_listing AS (SELECT * FROM address_listing ORDER BY total_price DESC);";
 								updateTempTable(query, table_exist);
 								table_exist = true;
 							}
-						} while (!valid_price);
-					} else if (choice.equalsIgnoreCase("f") && !check_f) {
-						boolean valid_amenities;
-						allow_choose_again = true;
-						check_f = true;
-						do {
-							valid_amenities = true;
-							System.out.println();
-							System.out.println("Please provide amenities included above you are looking for(separate by space):");
-							String input = CommandLine.sc.nextLine();
-							String[] amenities = input.split(" ");
-							ArrayList<String> list = new ArrayList<String>(Arrays.asList(this.amenities_column_name));
-							String query_table_exist = "SELECT * FROM curr_listing WHERE";
-							String query_table_nexist = "SELECT * FROM address_listing WHERE";
-							boolean check_first = true;
-							for (String a : amenities) {
-								// user input should match column names in amenities table, except for list_ID
-								if (!list.contains(a) || a.equals("list_ID")) {
-									valid_amenities = false;
-									break;
-								} else {
-									// forming the query
-									if (check_first) {
-										check_first = false;
-										query_table_exist += " " + a + " = 1";
-										query_table_nexist += " " + a + " = 1";
-									} else {
-										query_table_exist += " AND " + a + " = 1";
-										query_table_nexist += " AND " + a + " = 1";
-									}
-									query_table_exist += ";";
-									query_table_nexist += ";";
+						} else if (choice.equalsIgnoreCase("p") && !check_p) {
+							check_p = true;
+							allow_choose_again = true;
+							boolean valid_price;
+							do {
+								valid_price = true;
+								System.out.println("Please set the lowest price:");
+								String price_low = CommandLine.sc.nextLine();
+								System.out.println("Please set the highest price:");
+								String price_high = CommandLine.sc.nextLine();
+								if (price_low.compareTo(price_high) > 0) {
+									valid_price = false;
+									System.out.println("Please enter a valid price range");
+									continue;
 								}
-							}
+								if (table_exist) {
+									query = "CREATE temp AS (SELECT * FROM curr_listing WHERE totoal_price >= '" + price_low + "' AND total_price <= '" + price_high + "');";
+									updateTempTable(query, table_exist);
+								} else {
+									query = "CREATE curr_listing AS (SELECT * FROM address_listing WHERE totoal_price >= '" + price_low + "' AND total_price <= '" + price_high + "');";
+									updateTempTable(query, table_exist);
+									table_exist = true;
+								}
+							} while (!valid_price);
+						} else if (choice.equalsIgnoreCase("f") && !check_f) {
+							boolean valid_amenities;
+							allow_choose_again = true;
+							check_f = true;
+							do {
+								valid_amenities = true;
+								System.out.println();
+								System.out.println("Please provide amenities included above you are looking for(separate by space):");
+								String input = CommandLine.sc.nextLine();
+								String[] amenities = input.split(" ");
+								ArrayList<String> list = new ArrayList<String>(Arrays.asList(this.amenities_column_name));
+								String query_table_exist = "SELECT * FROM curr_listing WHERE";
+								String query_table_nexist = "SELECT * FROM address_listing WHERE";
+								boolean check_first = true;
+								for (String a : amenities) {
+									// user input should match column names in amenities table, except for list_ID
+									if (!list.contains(a) || a.equals("list_ID")) {
+										valid_amenities = false;
+										break;
+									} else {
+										// forming the query
+										if (check_first) {
+											check_first = false;
+											query_table_exist += " " + a + " = 1";
+											query_table_nexist += " " + a + " = 1";
+										} else {
+											query_table_exist += " AND " + a + " = 1";
+											query_table_nexist += " AND " + a + " = 1";
+										}
+										query_table_exist += ";";
+										query_table_nexist += ";";
+									}
+								}
+								if (table_exist) {
+									query = query_table_exist;
+									this.updateTempTable(query, table_exist);
+								} else {
+									query = query_table_nexist;
+									this.updateTempTable(query, table_exist);
+									table_exist = true;
+								}
+							} while(!valid_amenities);
+						} else if (choice.equalsIgnoreCase("s")) {
+							allow_choose_again = true;
+							check_f = false; check_p = false;
 							if (table_exist) {
-								query = query_table_exist;
-								this.updateTempTable(query, table_exist);
-							} else {
-								query = query_table_nexist;
-								this.updateTempTable(query, table_exist);
-								table_exist = true;
+								sqlMngr.deleteOp("DROP TABLE curr_listing");
+								table_exist = false;
 							}
-						} while(!valid_amenities);
-					} else if (choice.equalsIgnoreCase("s")) {
-						allow_choose_again = true;
-						check_f = false; check_p = false;
-						if (table_exist) {
-							sqlMngr.deleteOp("DROP TABLE curr_listing");
-							table_exist = false;
-						}
-					} else if (choice.equalsIgnoreCase("c")) {						
-						break;
-					} else if (choice.equalsIgnoreCase("e")) {
-						re_enter = true;
-						if (table_exist) {
-							sqlMngr.deleteOp("DROP TABLE curr_listing");
-							table_exist = false;
-						}
-						break;
-					} if (choice.equalsIgnoreCase("r")) {
-						if (table_exist) {
-						sqlMngr.deleteOp("DROP TABLE IF EXISTS curr_listing");
-						table_exist = false;							
-						}
-						sqlMngr.deleteOp("DROP TABLE address_listing");
-						terminate = true;
-						return terminate;
-					} else {
-						valid_choice = false;
-					}
-					// Checkout procedure: insert into Booking and Update List Calendar
-					boolean valid_list_id;
-					if (choice.equalsIgnoreCase("c")) {
-						ArrayList<String> values=null;
-						do {	// DO WHILE verify listing id //
-							valid_list_id = true;
-							System.out.println("Please enter a listing id listed above to check its availability");
-							list_ID = CommandLine.sc.nextLine();
+						} else if (choice.equalsIgnoreCase("c")) {						
+							break;
+						} else if (choice.equalsIgnoreCase("e")) {
+							re_enter = true;
 							if (table_exist) {
-								query = "SELECT * FROM curr_listing WHERE list_ID = '" + list_ID + "';";
-							} else {
-								query = "SELECT * FROM address_listing WHERE list_ID = '" + list_ID + "';";
+								sqlMngr.deleteOp("DROP TABLE curr_listing");
+								table_exist = false;
 							}
+							break;
+						} if (choice.equalsIgnoreCase("r")) {
+							if (table_exist) {
+								sqlMngr.deleteOp("DROP TABLE IF EXISTS curr_listing");
+								table_exist = false;							
+							}
+							sqlMngr.deleteOp("DROP TABLE address_listing");
+							terminate = true;
+							return terminate;
+						} else {
+							valid_choice = false;
+						}
+						// Checkout procedure: insert into Booking and Update List Calendar
+						boolean valid_list_id;
+						if (choice.equalsIgnoreCase("c")) {
+							ArrayList<String> values=null;
+							do {	// DO WHILE verify listing id //
+								valid_list_id = true;
+								System.out.println("Please enter a listing id listed above to check its availability");
+								list_ID = CommandLine.sc.nextLine();
+								if (table_exist) {
+									query = "SELECT * FROM curr_listing WHERE list_ID = '" + list_ID + "';";
+								} else {
+									query = "SELECT * FROM address_listing WHERE list_ID = '" + list_ID + "';";
+								}
+								rs = sqlMngr.selectOp(query);
+								result = sqlMngr.rsToList(rs);
+								if (!result.isEmpty()) {
+									values = result.get(0);
+									if(table_exist) {
+										sqlMngr.deleteOp("DROP TABLE curr_listing");
+										table_exist = false;
+									}					
+									sqlMngr.deleteOp("DROP TABLE address_listing");
+								}
+							} while(!valid_list_id);// DO WHILE END verify listing id //
+							/*** INSERT BOOKING ***/
+							// "list_ID", "host_user_name", "renter_user_name", "start_date", "end_date"
+							// values[0], values[1], username, start_date, end_date
+
+							//String column_names[] = {"list_ID", "host_user_name", "renter_user_name", "start_date", "end_date"};
+							//String column_values[] = {values.get(0), values.get(1), username, start_date, end_date};
+							//sqlMngr.insertOp("booking", column_names, column_values);
+							query = "INSERT INTO TABLE booking(list_ID, host_user_name, renter_user_name, start_date, end_date) VALUES ('"+values.get(0)+"', '"+values.get(1)+"', '"+username+"', '"+start_date+"', '"+end_date+"');";
+							int booking_ID = sqlMngr.insertGetID(query);
+
+							/*** UPDATE LIST CALENDAR ***/
+							// "date", "list_ID", "available"
+							// start_date -> end_date, list_ID, b
+							query = "SELECT date FROM lists_calendar WHERE list_ID = '" + list_ID + "' AND date >= '" + start_date + "' AND date <= '" + end_date + "';";
 							rs = sqlMngr.selectOp(query);
 							result = sqlMngr.rsToList(rs);
-							if (!result.isEmpty()) {
-								values = result.get(0);
-								if(table_exist) {
-									sqlMngr.deleteOp("DROP TABLE curr_listing");
-									table_exist = false;
-								}					
-								sqlMngr.deleteOp("DROP TABLE address_listing");
+							for (int i = 0; i < day_lengths; i++) {
+								String date = result.get(i).get(0);
+								query = "UPDATE lists_calendar SET available = 'b' WHERE list_ID = '" + list_ID + "' AND date = '" + date + "';";
 							}
-						} while(!valid_list_id);// DO WHILE END verify listing id //
-						/*** INSERT BOOKING ***/
-						// "list_ID", "host_user_name", "renter_user_name", "start_date", "end_date"
-						// values[0], values[1], username, start_date, end_date
-					
-						//String column_names[] = {"list_ID", "host_user_name", "renter_user_name", "start_date", "end_date"};
-						//String column_values[] = {values.get(0), values.get(1), username, start_date, end_date};
-						//sqlMngr.insertOp("booking", column_names, column_values);
-						query = "INSERT INTO TABLE booking(list_ID, host_user_name, renter_user_name, start_date, end_date) VALUES ('"+values.get(0)+"', '"+values.get(1)+"', '"+username+"', '"+start_date+"', '"+end_date+"');";
-						int booking_ID = sqlMngr.insertGetID(query);
-
-						/*** UPDATE LIST CALENDAR ***/
-						// "date", "list_ID", "available"
-						// start_date -> end_date, list_ID, b
-						query = "SELECT date FROM lists_calendar WHERE list_ID = '" + list_ID + "' AND date >= '" + start_date + "' AND date <= '" + end_date + "';";
-						rs = sqlMngr.selectOp(query);
-						result = sqlMngr.rsToList(rs);
-						for (int i = 0; i < day_lengths; i++) {
-							String date = result.get(i).get(0);
-							query = "UPDATE lists_calendar SET available = 'b' WHERE list_ID = '" + list_ID + "' AND date = '" + date + "';";
+							System.out.println("You've successfully checked out. Your booking id is: " + booking_ID);
 						}
-						System.out.println("You've successfully checked out. Your booking id is: " + booking_ID);
-					}
 				} while(!valid_choice || allow_choose_again);// DO WHILE END verify user's choice //
 			}
 		} while(re_enter);// DO WHILE END enter address //
@@ -862,8 +879,8 @@ public class Listing {
 							break;
 						} if (choice.equalsIgnoreCase("r")) {
 							if (table_exist) {
-							sqlMngr.deleteOp("DROP TABLE IF EXISTS curr_listing");
-							table_exist = false;							
+								sqlMngr.deleteOp("DROP TABLE IF EXISTS curr_listing");
+								table_exist = false;							
 							}
 							sqlMngr.deleteOp("DROP TABLE address_listing");
 							terminate = true;
@@ -898,7 +915,7 @@ public class Listing {
 							/*** INSERT BOOKING ***/
 							// "list_ID", "host_user_name", "renter_user_name", "start_date", "end_date"
 							// values[0], values[1], username, start_date, end_date
-						
+
 							//String column_names[] = {"list_ID", "host_user_name", "renter_user_name", "start_date", "end_date"};
 							//String column_values[] = {values.get(0), values.get(1), username, start_date, end_date};
 							//sqlMngr.insertOp("booking", column_names, column_values);
