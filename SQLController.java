@@ -55,43 +55,6 @@ public class SQLController {
 		}
 	}
 
-	// Controls the execution of functionality: "3. Print schema."
-	/*public ArrayList<String> getSchema() {
-		ArrayList<String> output = new ArrayList<String>();
-		try {
-			DatabaseMetaData meta = conn.getMetaData();
-			ResultSet schemas = meta.getTables(null,null,"%",null);
-			//ResultSet catalogs = meta.getCatalogs();
-			while (schemas.next()) {
-				output.add(schemas.getString("TABLE_NAME"));
-			}
-			schemas.close();
-		} catch (SQLException e) {
-			System.err.println("Retrieval of Schema Info failed!");
-			e.printStackTrace();
-			output.clear();
-		}
-		return output;
-	}*/
-
-	// Controls the execution of functionality: "4. Print table schema."
-	/*public ArrayList<String> colSchema(String tableName) {
-		ArrayList<String> result = new ArrayList<String>();
-		try {
-			DatabaseMetaData meta = conn.getMetaData();
-			ResultSet rs = meta.getColumns(null, null, tableName, null);
-			while(rs.next()) {
-				result.add(rs.getString(4));
-				result.add(rs.getString(6));
-			}
-			rs.close();
-		} catch (SQLException e) {
-			System.err.println("Retrieval of Table Info failed!");
-			e.printStackTrace();
-			result.clear();
-		}
-		return result;
-	}*/
 	public void initialize(){
 		this.createTable("users", User.getUserColumn(), User.getUserColumnType(), User.getUserKey());
 		this.createTable("listing", Listing.getListingColumn(), Listing.getListingColumnType(), Listing.getListingKey());
@@ -204,10 +167,6 @@ public class SQLController {
 		column_name = column_name.concat(column[counter] + ") ");
 		column_values = column_values.concat("'" + values[counter] + "');");
 		query = column_name.concat(column_values);
-		System.out.println("insert query" + query);
-		System.out.println("");
-		System.out.println("Rows affected: " + rowsAff);
-		System.out.println("");
 		int rows = 0; 
 		try {
 			if(!return_generated_keys){
@@ -286,7 +245,6 @@ public class SQLController {
 		}
 	}
 
-
 	//print the records that stores in the resultset rs,
 	//TO DO:
 	// need to print in table format
@@ -295,13 +253,13 @@ public class SQLController {
 			ResultSetMetaData rsmd = rs.getMetaData();
 			int columnsNumber = rsmd.getColumnCount();
 			for(int j = 1; j <= columnsNumber; j++){
-				if (j > 1) System.out.print("  /   ");
+				if (j > 1) System.out.print("     ");
 				System.out.print(rsmd.getColumnName(j));
 			}
-			System.out.println("");
+			System.out.println();
 			while (rs.next()) {
 				for (int i = 1; i <= columnsNumber; i++) {
-					if (i > 1) System.out.print("  /  ");
+					if (i > 1) System.out.print("             ");
 					String columnValue = rs.getString(i);
 					System.out.print(columnValue);
 				}
@@ -312,7 +270,6 @@ public class SQLController {
 			e.printStackTrace();
 		}
 	}
-
 
 	public ResultSet excuteSql(String sql){
 		ResultSet rs = null;
@@ -325,7 +282,6 @@ public class SQLController {
 		return rs;
 
 	}
-	
 	//Controls the execution of an insert query, and return the auto incremented id.
 	public int insertGetID(String query) {
 		try{
@@ -349,7 +305,6 @@ public class SQLController {
 			e.printStackTrace();
 		}
 	}
-
 	public void dropTempTable(String query){
 		try{
 			st.executeUpdate(query);
@@ -358,6 +313,7 @@ public class SQLController {
 			e.printStackTrace();
 		}
 	}
+
 
 
 
