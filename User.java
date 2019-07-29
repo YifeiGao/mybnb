@@ -15,7 +15,6 @@ public class User {
 
 	public static SQLController sqlMngr = new SQLController();
 	public User(){
-		//sqlMngr.connect();
 		sqlMngr = CommandLine.sqlMngr;
 	}
 	public static String[] getUserColumn(){
@@ -275,9 +274,16 @@ public class User {
 		Listing l = new Listing();
 		l_ID = l.addListing(this.curr_user);
 		price = l.getAvePrice(l_ID);
-		System.out.println("price"+ price);
 		ListCalendar c = new ListCalendar();
-		System.out.println("The system provid a suggestion price according to tsthe listing's address, the price is "+ price +". It will be the initial price in your listing calendar, you can update the price by doing the operation 11");
+		if(price == 0.0){
+			System.out.println("We did not get the suggest price for you, please set the price by yourself ");
+			price =Float.parseFloat(CommandLine.sc.nextLine());
+		}
+		else{
+			System.out.println("price"+ price);
+			
+			System.out.println("The system provid a suggestion price according to tsthe listing's address, the price is "+ price +". It will be the initial price in your listing calendar, you can update the price by doing the operation 11");
+		}
 		c.insertListCalendar(l_ID, price);
 
 	}
