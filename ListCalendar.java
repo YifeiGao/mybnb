@@ -88,6 +88,7 @@ public class ListCalendar {
 		String status = "";
 		try {
 			ResultSet rs = sqlMngr.selectOp(sql);
+			rs.next();
 			status = rs.getString("available");
 		} catch (SQLException e) {
 			System.out.println("Exception occurs in checkStatus in class Calendar");
@@ -98,14 +99,22 @@ public class ListCalendar {
 	}
 
 	public boolean checkDate(int listing_ID, String date){
-		String sql  = "SELECT * FROM lists_calendar WHERE list_ID = ''"+listing_ID+" and date = '"+date+"';";
-		boolean exist = false;
+		String sql  = "SELECT * FROM lists_calendar WHERE list_ID = "+listing_ID+" AND date = '"+date+"';";
+		boolean exist;
+		ResultSet rs;
 		try{
-			ResultSet rs = sqlMngr.selectOp(sql);
-			exist = rs.next();
+			 rs = sqlMngr.selectOp(sql);
+			 if(rs.next()){
+				 exist = true;
+			 }
+			 else{
+				 exist = false;
+			 }
+			 rs.close();
 		}catch(SQLException e){
-			System.out.println("Exception occurs in Calendar.checkDate");
+			System.err.println("Exception occurs in Calendar.checkDate");
 			e.printStackTrace();
+			exist = false;
 		}
 		return exist;
 	}
@@ -119,7 +128,7 @@ public class ListCalendar {
 
 	//call this function when host wants to update the listing's price of a certain day
 	public void updatePrice(int listing_ID, String date, float price){
-		String update_price = "UPDATE lists_calendar SET price = '"+price+"' WHERE date = '"+date+"' and list_ID == '"+listing_ID+"';";
+		String update_price = "UPDATE lists_calendar SET price = "+price+" WHERE date = '"+date+"' and list_ID = '"+listing_ID+"';";
 		sqlMngr.updateOp(update_price);
 		float new_price = this.getPrice(listing_ID, date);
 		System.out.println("Update price scuessfully, your current price of " + listing_ID +" on " + date + " is " + new_price);
@@ -130,7 +139,9 @@ public class ListCalendar {
 		float price = -1;
 		try {
 			ResultSet rs = sqlMngr.selectOp(get_price);
+			rs.next();
 			price = rs.getFloat("price");
+			rs.close();
 		} catch (SQLException e) {
 			System.out.println("Exception occurs in class Calendar getPrice function");
 			e.printStackTrace();
