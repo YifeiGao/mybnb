@@ -45,13 +45,7 @@ public class Comments {
 
 	public static SQLController sqlMngr = new SQLController();
 	public Comments(){
-		try {
-			sqlMngr.connect();
-		} catch (ClassNotFoundException e) {
-			System.err.println("Esception occurs Comments.constructor");
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		sqlMngr = CommandLine.sqlMngr;
 	}
 
 	//[updated]
