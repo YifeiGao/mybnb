@@ -145,7 +145,7 @@ public class Listing {
 	}
 
 	public boolean ownList(int list_ID, String host) throws SQLException{
-		String sql = "SELECT * FROM listins WHERE list_ID = '"+list_ID+"' and host_user_name = '"+host+"';";
+		String sql = "SELECT * FROM listing WHERE list_ID = '"+list_ID+"' and host_user_name = '"+host+"';";
 		ResultSet rs =sqlMngr.selectOp(sql);
 		return rs.next();
 	}
