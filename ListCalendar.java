@@ -17,13 +17,7 @@ public class ListCalendar {
 
 	public static SQLController sqlMngr = new SQLController();
 	public ListCalendar(){
-		/*try {
-			sqlMngr.connect();
-		} catch (ClassNotFoundException e) {
-			System.err.println("Esception occurs in ListCalendar.constructor");
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
+		
 		sqlMngr = CommandLine.sqlMngr;
 	}
 	public static String[] getCColumn(){
