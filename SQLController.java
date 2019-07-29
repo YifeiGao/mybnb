@@ -17,7 +17,7 @@ public class SQLController {
 	//desired query from our application and returning the results of this
 	//execution the same way that are received from the SQL backend.
 	public Statement st = null;
-	private Connection conn = null;
+	public Connection conn = null;
 
 	// Initialize current instance of this class.
 	public boolean connect() throws ClassNotFoundException {
@@ -200,7 +200,7 @@ public class SQLController {
 		int rows = 0; 
 		try {
 			if(!return_generated_keys){
-			rows = st.executeUpdate(query);
+				rows = st.executeUpdate(query);
 			}
 			else{
 				rows = st.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);
@@ -214,7 +214,7 @@ public class SQLController {
 
 	public void updateOp(String query){
 		try{
-			st.executeQuery(query);
+			st.executeUpdate(query);
 		} catch(SQLException e){
 			System.err.println("Exception triggered during update operation execution!");
 			e.printStackTrace();
@@ -223,7 +223,7 @@ public class SQLController {
 
 	public boolean checkExist(String select_col, String[] check_col, String[] value, String table){
 		int i;
-		 boolean exist;
+		boolean exist;
 		String sql = "SELECT "+select_col+" FROM "+table+" WHERE ";
 		for(i = 0; i < check_col.length - 1; i++){
 			sql = sql.concat(check_col[i]);
@@ -246,7 +246,7 @@ public class SQLController {
 				rs.close();
 				exist = false;
 			}
-			
+
 		}catch(Exception e){
 			System.err.println("Exception occur in SQLController.checkExist");
 			e.printStackTrace();
@@ -286,9 +286,10 @@ public class SQLController {
 				if (j > 1) System.out.print("     ");
 				System.out.print(rsmd.getColumnName(j));
 			}
+			System.out.println();
 			while (rs.next()) {
 				for (int i = 1; i <= columnsNumber; i++) {
-					if (i > 1) System.out.print("");
+					if (i > 1) System.out.print("             ");
 					String columnValue = rs.getString(i);
 					System.out.print(columnValue);
 				}
@@ -312,31 +313,31 @@ public class SQLController {
 
 	}
 	//Controls the execution of an insert query, and return the auto incremented id.
-			public int insertGetID(String query) {
-				try{
-					st.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);
-		    	int id = -1;
-					ResultSet rs = st.getGeneratedKeys();
-					if (rs.next()) {
-							id = rs.getInt(1);
-					} 
-					rs.close();
-					return id;
-				} catch(SQLException e){
-					System.err.println("Exception triggered during insertGetID execution!");
-					e.printStackTrace();
-				}
-				return -1;
-			}
-			public void createTempTable(String query){
-				try{
-					st.executeQuery(query);
-				} catch(SQLException e){
-					System.err.println("Exception triggered during create table operation execution!");
-					e.printStackTrace();
-				}
-			}
-		
+	public int insertGetID(String query) {
+		try{
+			st.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);
+			int id = -1;
+			ResultSet rs = st.getGeneratedKeys();
+			if (rs.next()) {
+				id = rs.getInt(1);
+			} 
+			rs.close();
+			return id;
+		} catch(SQLException e){
+			System.err.println("Exception triggered during insertGetID execution!");
+			e.printStackTrace();
+		}
+		return -1;
+	}
+	public void createTempTable(String query){
+		try{
+			st.executeQuery(query);
+		} catch(SQLException e){
+			System.err.println("Exception triggered during create table operation execution!");
+			e.printStackTrace();
+		}
+	}
+
 
 
 
