@@ -140,7 +140,7 @@ public class User {
 				column_values[Arrays.asList(user_column_name).indexOf("user_name")] = CommandLine.getInfo(get_user,1,1).get(0);
 			}
 		}while(user_exist);
-		int row_affect = sqlMngr.insertOp("users", user_column_name, column_values);
+		int row_affect = sqlMngr.insertOp("users", user_column_name, column_values,false);
 		//set the user name that the user registed as the current user name once the user created a user
 		// the user will be auto logged in after register
 		this.setUser(column_values[Arrays.asList(user_column_name).indexOf("user_name")]);
@@ -270,7 +270,7 @@ public class User {
 		int l_ID;
 		float price;
 		Listing l = new Listing();
-		l_ID = l.addListing();
+		l_ID = l.addListing(this.curr_user);
 		price = l.getAvePrice(l_ID);
 		ListCalendar c = new ListCalendar();
 		System.out.println("The system provid a suggestion price according to tsthe listing's address, the price is "+ price +". It will be the initial price in your listing calendar, you can update the price by doing the operation 11");
