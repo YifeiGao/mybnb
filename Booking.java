@@ -95,6 +95,7 @@ public class Booking {
 		this.updateCancellation(type, user_name);
 		//update availability of the list
 		listing_ID = Integer.parseInt(result.get(1));
+
 		start_date = result.get(4);
 		end_date = result.get(5);
 		System.out.println("test: start_date is " + start_date +" end date is " + end_date);
@@ -144,7 +145,7 @@ public class Booking {
 	private boolean checkFuture(ArrayList<String> result_list){
 		boolean check_date = false;
 		//get the current date which named curr, the time zone is GMT
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'");
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
 		Date curr = new Date();
 		sdf.format(curr);
@@ -171,16 +172,16 @@ public class Booking {
 		int cancellation;
 		String update_sql;
 		if(type.equals("host")){
-			get_cancel_sql = "SELECT host_cancellation FROM users WHERE user_name = " +user_name+ ";";
+			get_cancel_sql = "SELECT host_cancellation FROM users WHERE user_name = '"+user_name+"';";
 			cancellation = Integer.parseInt(sqlMngr.rsToList(sqlMngr.selectOp(get_cancel_sql)).get(0).get(0));
 			cancellation += 1;
-			update_sql = "UPDATE users SET host_cancellation = '"+cancellation+"' WHERE user_name = " + user_name + ";";
+			update_sql = "UPDATE users SET host_cancellation = '"+cancellation+"' WHERE user_name = '"+user_name+"';";
 		}
 		else{
-			get_cancel_sql = "SELECT renter_cancellation FROM users WHERE user_name = " +user_name+ ";";
+			get_cancel_sql = "SELECT renter_cancellation FROM users WHERE user_name = '"+user_name+"';";
 			cancellation = Integer.parseInt(sqlMngr.rsToList(sqlMngr.selectOp(get_cancel_sql)).get(0).get(0));
 			cancellation += 1;
-			update_sql = "UPDATE users SET renter_cancellation = '"+cancellation+"' WHERE user_name = " + user_name + ";";
+			update_sql = "UPDATE users SET renter_cancellation = '"+cancellation+"' WHERE user_name = '"+user_name+"';";
 		}
 
 		sqlMngr.updateOp(update_sql);
