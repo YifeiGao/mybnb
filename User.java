@@ -7,7 +7,7 @@ import java.util.Arrays;
 
 public class User {
 
-	private static final String[] user_column_name = {"name", "password", "list_address", "birth", "occup", "SIN", "user_name","host_canclellation", "renter_canclellation"};
+	private static final String[] user_column_name = {"name", "password", "address", "birth", "occup", "SIN", "user_name","host_canclellation", "renter_canclellation"};
 	private static final String[] user_column_type = {"VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "DATE NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "VARCHAR(30) NOT NULL", "INT DEFAULT 0", "INT DEFAULT 0"};
 	private static final String user_primary_key = "user_name";
 
@@ -21,11 +21,11 @@ public class User {
 	public static String[] getUserColumn(){
 		return user_column_name;
 	}
-	
+
 	public static String[] getUserColumnType(){
 		return user_column_type;
 	}
-	
+
 	public static String getUserKey(){
 		return user_primary_key;
 	}
@@ -272,6 +272,7 @@ public class User {
 		Listing l = new Listing();
 		l_ID = l.addListing(this.curr_user);
 		price = l.getAvePrice(l_ID);
+		System.out.println("price"+ price);
 		ListCalendar c = new ListCalendar();
 		System.out.println("The system provid a suggestion price according to tsthe listing's address, the price is "+ price +". It will be the initial price in your listing calendar, you can update the price by doing the operation 11");
 		c.insertListCalendar(l_ID, price);
@@ -287,6 +288,7 @@ public class User {
 
 	//operation 9
 	public void updateAvai(){
+		Listing l = new Listing();
 		//check if the current user owns listings
 		boolean check;
 		boolean own_list;
@@ -296,7 +298,7 @@ public class User {
 		String d_q;
 		String delete_fu_b;
 		int listId = -1000;
-		check = sqlMngr.checkExist("*", new String[]{"host name"}, new String[] {curr_user}, "listing");
+		check = sqlMngr.checkExist("*", new String[]{"host_user_name"}, new String[] {curr_user}, "listing");
 		if(!check){
 			System.out.println("According our records, you are not a host yet. Please add listing first to become a host. You will be sent to the operation menu page");
 		}
@@ -304,10 +306,10 @@ public class User {
 			try{
 				do{
 					System.out.println("Following are the listings that you owned");
-					new Listing().getHostListings(curr_user);
+					//l.getHostListings(curr_user);
 					System.out.println("Please enter the listing ID");
 					listId = Integer.parseInt(CommandLine.sc.nextLine());
-					own_list = new Listing().ownList(listId, curr_user);
+					own_list = l.ownList(listId, curr_user);
 					if(!own_list){
 						System.out.println("According to our records. you do not own this listing, check if the listId is correct ");
 					}
@@ -327,9 +329,9 @@ public class User {
 			String original_status = new ListCalendar().checkStatus(listId, date);
 			System.out.println("The current status of the listing on that day is " + original_status);
 			do{
-				System.out.println("Please chose the status that you want to change. Type 'a' to change it availiable, or type 'u' to make it unavailiable");
+				System.out.println("Please chose the status that you want to change. Type 'A' to change it availiable, or type 'U' to make it unavailiable");
 				status = CommandLine.sc.nextLine();
-			}while (!(status.equals("a") || status.equals("u")));
+			}while (!(status.equalsIgnoreCase("a") || status.equalsIgnoreCase("u")));
 			if(original_status.equals("b")){
 				System.out.println("The listing is booked on that day, do you want cancle this booking?");
 				do{
@@ -354,23 +356,44 @@ public class User {
 
 	//operation 11
 	public void updatePrice(){
+		Listing l = new Listing();
+		ListCalendar lc = new ListCalendar();
 		String status;
+		boolean check_own;
+		int list_ID;
 		System.out.println("Following are the listings that you own");
 		//TO DO:
 		//print the listing that the user owns
-		System.out.println("Please enter the listing ID that you want to update");
-		int list_ID = Integer.parseInt(CommandLine.sc.nextLine());
-		//TO Do:
-		//check if the listing ID that the host typed is correct
+		//this.getHostListings();
+		do{
+			System.out.println("Please enter the listing ID that you want to update");
+			list_ID = Integer.parseInt(CommandLine.sc.nextLine());
+			try {
+				check_own = l.ownList(list_ID, curr_user);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				check_own = false;
+				e.printStackTrace();
+			}
+			if(!check_own){
+				System.out.println("You do not own this list, please try again");
+			}
+		}while(!check_own);
 		System.out.println("Please enter the date that you want to change, please type in yyyy-MM-dd format");
 		String date = CommandLine.sc.nextLine();
 		//TO DO:
 		//get the status of the listing on that day, if it is booked then need to delete the booking first, if it is unavailable update to available first 
-		float price = new ListCalendar().getPrice(list_ID, date);
-		System.out.println("According to our record, the price of the listing "+ list_ID + " on " + date + " was " + price);
-		System.out.println("Please type the new price on that day");
-		float new_price = Float.parseFloat(CommandLine.sc.nextLine());
-		new ListCalendar().updatePrice(list_ID, date, new_price);
+		status = lc.checkStatus(list_ID, date);
+		if(status.equalsIgnoreCase("b")){
+			System.out.println("The list is booked on " + date + " please delete the booking first. You will be sent to the user operation menu");
+		}
+		else{
+			float price = new ListCalendar().getPrice(list_ID, date);
+			System.out.println("According to our record, the price of the listing "+ list_ID + " on " + date + " was " + price);
+			System.out.println("Please type the new price on that day");
+			float new_price = Float.parseFloat(CommandLine.sc.nextLine());
+			new ListCalendar().updatePrice(list_ID, date, new_price);
+		}
 
 	}
 
