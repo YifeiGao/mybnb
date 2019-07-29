@@ -15,37 +15,43 @@ public class Listing {
 	private static final String[] listing_column_name_for_insert = { "list_latitude", "list_longitude", "Country", "Province", "City", "house_number_and_Street","post_code", "list_type","host_user_name"};
 
 	private static final String[] amenities_column_name = {"list_ID", "kitchen","heating","washer", "wifi", "indoor_fireplace", "iron", "Laptop_friendly_workspace", "crib", "self_check_in", "carbon_monoxide_detector", "shampoo", "air_conditioning", "dryer", "breakfast", "hangers", "hair_dryer", "TV", "hight_chair", "smoke_detector", "private_bathroom"};
-	private static final String[] amenities_column_type = {"INT NOT NULL", "TINYINT(1) NOT NULL","TINYINT(1) NOT NULL","TINYINT(1) NOT NULL","TINYINT(1) NOT NULL","TINYINT(1) NOT NULL","TINYINT(1) NOT NULL","TINYINT(1) NOT NULL","TINYINT(1) NOT NULL","TINYINT(1) NOT NULL","TINYINT(1) NOT NULL","TINYINT(1) NOT NULL","TINYINT(1) NOT NULL","TINYINT(1) NOT NULL","TINYINT(1) NOT NULL","TINYINT(1) NOT NULL","TINYINT(1) NOT NULL","TINYINT(1) NOT NULL","TINYINT(1) NOT NULL","TINYINT(1) NOT NULL","TINYINT(1) NOT NULL"};
+	private static final String[] amenities_column_type = {"INT NOT NULL", "TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)","TINYINT(1)"};
 	private static final String amenities_primary_key = "list_ID";
 
 	public static SQLController sqlMngr = new SQLController();
 	public Listing(){
-		
+		/*try {
+			sqlMngr.connect();
+		} catch (ClassNotFoundException e) {
+			System.err.println("Esception occurs in Listin.constructor");
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}*/
 		sqlMngr = CommandLine.sqlMngr;
 	}
 	public static String[] getListingColumn(){
 		return listing_column_name;
 	}
-
+	
 	public static String[] getListingColumnType(){
 		return listing_column_type;
 	}
-
+	
 	public static String getListingKey(){
 		return listing_primary_key;
 	}
 	public static String[] getAmColumn(){
 		return amenities_column_name;
 	}
-
+	
 	public static String[] getAmColumnType(){
 		return amenities_column_type;
 	}
-
+	
 	public static String getAmKey(){
 		return amenities_primary_key;
 	}
-
+	
 
 	public int addListing(String host_user){
 		int choice;
@@ -69,7 +75,7 @@ public class Listing {
 		a.add(host_user);
 		column_values = a.toArray(new String[0]);;
 		sqlMngr.insertOp("listing", listing_column_name_for_insert, column_values, true);
-
+		
 		try{
 			ResultSet rs = sqlMngr.st.getGeneratedKeys();
 			rs.next();
@@ -94,7 +100,7 @@ public class Listing {
 			do{
 				System.out.println("Do you have " + amenities_column_name[i] + " in your listing? (T/F)");
 				t_or_f =  CommandLine.sc.nextLine();
-			}while(! (t_or_f.equalsIgnoreCase("t") || t_or_f.equalsIgnoreCase("f")));
+			}while(! (t_or_f.equalsIgnoreCase("t") ||t_or_f.equalsIgnoreCase("f")));
 			if(t_or_f.equalsIgnoreCase("t")){
 				amenities[i] = Integer.toString(1);
 			}
@@ -107,23 +113,7 @@ public class Listing {
 
 	public float getAvePrice(int l_ID){
 		float price = -100;
-		String get_l_info = "SELECT Country, Province, City FROM listing WHERE list_ID = '"+l_ID+"';";
-		String country = "";
-		String province = "";
-		String city = "";
-		ResultSet info = sqlMngr.selectOp(get_l_info);
-		try {
-			if(info.next()){
-				country = info.getString("Country");
-				province = info.getString("Province");
-				city = info.getString("City");
-				info.close();
-			}
-		} catch (SQLException e1) {
-			System.out.println("Exception occurs in Listing.getAvP 1");
-			e1.printStackTrace();
-		}
-		String get_ave = "SELECT AVG(price) ave_p FROM (SELECT list_ID FROM listing WHERE Country = '"+country+"' AND Province = '"+province+"' AND City = '"+city+"') t1 INNER JOIN lists_calendar t2 WHERE t1.list_ID = t2.list_ID";
+		String get_ave = "SELECT AVG(price) ave_p FROM lists_calendar WHERE (SELECT list_ID FROM listing l WHERE l. ";
 		ResultSet rs = sqlMngr.selectOp(get_ave);
 		try {
 			if(rs.next()){
@@ -131,7 +121,7 @@ public class Listing {
 				rs.close();
 			}
 		} catch (SQLException e) {
-			System.out.println("Exception occurs in Listing.getAvP 2");
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return price;
@@ -152,6 +142,12 @@ public class Listing {
 		System.out.print("Please select the type of your listing [0-15]: ");
 	}
 
+	public boolean checkHost(String user_name){
+		boolean is_host;
+		is_host = sqlMngr.checkExist("list_ID", new String[] {"host_user_name"}, new String[] {user_name}, "listing");
+		return is_host;
+	}
+
 	public void getHostListings(String user_id){
 		String query = "SELECT list_ID, list_latitude, list_longitude, Country, Province, City, house_number_and_Street, list_type, kitchen, heating, washer, wifi, indoor_fireplace, iron, Laptop_friendly_workspace, crib, self_check_in, carbon_monoxide_detector, shampoo, air_conditioning, dryer, breakfast, hangers, hair_dryer, TV, hight_chair, smoke_detector, private_bathroom FROM listing NATURAL JOIN amenities WHERE host_user_name = '" +user_id+ "';";
 		ResultSet rs = sqlMngr.selectOp(query);
@@ -163,7 +159,7 @@ public class Listing {
 			sqlMngr.printRecord(rs);
 		}
 	}
-	
+
 	public boolean checkHost(String user_name){
 		boolean is_host;
 		is_host = sqlMngr.checkExist("list_ID", new String[] {"host_user_name"}, new String[] {user_name}, "listing");
@@ -183,9 +179,9 @@ public class Listing {
 		do {	//DO WHILE user input date: valid_date //
 			valid_date = true;
 			re_enter = false;
-			System.out.println("Please Enter your start date: (yyyy-MM-dd)");
+			System.out.println("Please Enter your start date: ");
 			start_date = CommandLine.sc.nextLine();
-			System.out.println("Please Enter your end date: (yyyy-MM-dd)");
+			System.out.println("Please Enter your end date: ");
 			end_date = CommandLine.sc.nextLine();
 			/***** Verify date *****/
 			ArrayList<ArrayList<String>> result;
@@ -212,7 +208,6 @@ public class Listing {
 			}
 			// length of the day including the first day
 			day_lengths = difference_milies / (1000 * 60 * 60 * 24) + 1;
-			System.out.println("===" + day_lengths + "===");
 			query = "SELECT list_ID, SUM(price) as total_price FROM lists_calendar WHERE available = 'a' AND date >= '" + start_date + "' AND date <= '" + end_date + "' GROUP BY list_ID HAVING COUNT(*) = '" + day_lengths + "';";
 			ResultSet rs = sqlMngr.selectOp(query);
 			result = sqlMngr.rsToList(rs);
@@ -246,7 +241,7 @@ public class Listing {
 			}
 		} while(!valid_date || re_enter);//DO WHILE END user input date //
 	}
-	
+
 	private boolean getListingByAddress(String start_date, String end_date, long day_lengths, String username) {
 		boolean terminate = false;
 		boolean re_enter;
@@ -386,7 +381,6 @@ public class Listing {
 							if (valid_amenities) {
 								query_table_exist += ");";
 								query_table_nexist += ");";
-								System.out.println("==="+query_table_exist+"===");
 								if (table_exist) {
 									query = query_table_exist;
 									this.updateTempTable(query, table_exist);
@@ -470,11 +464,8 @@ public class Listing {
 							String date = result.get(i).get(0);
 							query = "UPDATE lists_calendar SET available = 'b' WHERE list_ID = '" + list_ID + "' AND date = '" + date + "';";
 							sqlMngr.updateOp(query);
-							System.out.println("==="+query+"===");
 						}
 						System.out.println("You've successfully checked out. Your booking id is: " + booking_ID);
-						System.out.println("===aca:"+allow_choose_again+"===");
-						System.out.println("===!vc:"+!valid_choice+"===");
 					}
 				} while(!valid_choice || allow_choose_again);// DO WHILE END verify user's choice //
 			}
@@ -625,7 +616,6 @@ public class Listing {
 							if (valid_amenities) {
 								query_table_exist += ");";
 								query_table_nexist += ");";
-								System.out.println("==="+query_table_exist+"===");
 								if (table_exist) {
 									query = query_table_exist;
 									this.updateTempTable(query, table_exist);
@@ -708,11 +698,8 @@ public class Listing {
 							String date = result.get(i).get(0);
 							query = "UPDATE lists_calendar SET available = 'b' WHERE list_ID = '" + list_ID + "' AND date = '" + date + "';";
 							sqlMngr.updateOp(query);
-							System.out.println("==="+query+"===");
 						}
 						System.out.println("You've successfully checked out. Your booking id is: " + booking_ID);
-						System.out.println("===aca:"+allow_choose_again+"===");
-						System.out.println("===!vc:"+!valid_choice+"===");
 					}
 				} while(!valid_choice || allow_choose_again);// DO WHILE END verify user's choice //
 			}
@@ -743,7 +730,7 @@ public class Listing {
 				increase_distance = false;
 				System.out.println("Please provide the maximum distance(KM):");
 				distance = CommandLine.sc.nextLine();
-				String query_select = "SELECT list_ID, host_user_name, list_latitude, list_longitude, Country, Province, City, house_number_and_Street, list_type, post_code, kitchen,heating,washer, wifi, indoor_fireplace, iron, Laptop_friendly_workspace, crib, self_check_in, carbon_monoxide_detector, shampoo, air_conditioning, dryer, breakfast, hangers, hair_dryer, TV, hight_chair, smoke_detector, private_bathroom, SUM(price) AS total_price, 111.111 * DEGREES(ACOS(LEAST(COS(RADIANS(list_latitude)) * COS(RADIANS('"+lat+"')) * COS(RADIANS(list_longitude - '"+lon+"')) + SIN(RADIANS(list_latitude))	* SIN(RADIANS('"+lat+"')), 1.0))) AS distance FROM listing NATURAL JOIN amenities NATURAL JOIN lists_calendar WHERE available = 'a' AND date >= '"+start_date+"' AND date <= '"+end_date+"' GROUP BY list_ID HAVING COUNT(*) = '" + day_lengths + "' AND distance <= '" + distance + "'";
+				String query_select = "SELECT list_ID, host_user_name, list_latitude, list_longitude, Country, Province, City, house_number_and_Street, list_type, post_code, kitchen,heating,washer, wifi, indoor_fireplace, iron, Laptop_friendly_workspace, crib, self_check_in, carbon_monoxide_detector, shampoo, air_conditioning, dryer, breakfast, hangers, hair_dryer, TV, hight_chair, smoke_detector, private_bathroom, SUM(price) AS total_price, 111.111 * DEGREES(ACOS(LEAST(COS(RADIANS(list_latitude)) * COS(RADIANS("+ lat +")) * COS(RADIANS(list_longitude - " + lon + ")) + SIN(RADIANS(list_latitude))	* SIN(RADIANS(" + lat + ")), 1.0))) AS distance FROM listing NATURAL JOIN amenities NATURAL JOIN lists_calendar WHERE available = 'a' AND date >= '" + start_date + "' AND date <= '" + end_date + "' GROUP BY list_ID HAVING COUNT(*) = '" + day_lengths + "' AND distance <= '" + distance + "'";
 				query = query_select.concat(";");
 				rs = sqlMngr.selectOp(query);
 				result = sqlMngr.rsToList(rs);
@@ -889,7 +876,6 @@ public class Listing {
 								if (valid_amenities) {
 									query_table_exist += ");";
 									query_table_nexist += ");";
-									System.out.println("==="+query_table_exist+"===");
 									if (table_exist) {
 										query = query_table_exist;
 										this.updateTempTable(query, table_exist);
@@ -979,11 +965,8 @@ public class Listing {
 								String date = result.get(i).get(0);
 								query = "UPDATE lists_calendar SET available = 'b' WHERE list_ID = '" + list_ID + "' AND date = '" + date + "';";
 								sqlMngr.updateOp(query);
-								System.out.println("==="+query+"===");
 							}
 							System.out.println("You've successfully checked out. Your booking id is: " + booking_ID);
-							System.out.println("===aca:"+allow_choose_again+"===");
-							System.out.println("===!vc:"+!valid_choice+"===");
 						}
 					} while(!valid_choice || allow_choose_again);// DO WHILE END verify user's choice //
 				}
@@ -1010,5 +993,3 @@ public class Listing {
 
 
 }
-
-
